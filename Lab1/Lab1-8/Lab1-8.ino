@@ -48,6 +48,7 @@ void loop() {
   if (input == 0 || input == 1){
     if (input != state){
       state = input;
+      input = -1;
       if (state == 0){
         digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
         Serial.println(String(state));
@@ -61,11 +62,13 @@ void loop() {
   else if (input == 2){
     if (state == 0){
       state == 1;
+      input = -1;
       digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
       Serial.println(String(state));
     }
     else{
       state == 0;
+      input = -1;
       digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
       Serial.println(String(state));
     }

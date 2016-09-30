@@ -17,6 +17,9 @@
   by Arturo Guadalupi
 */
 
+const int blinkStart = 500;
+const int blinkStop = 4000;
+const int blinkStep = 500;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -26,13 +29,15 @@ void setup() {
 
 // the loop function runs over and over again forever
 void loop() {
-//  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-//  delay(100);                       // wait for 0.1 second
-//  digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-//  delay(100);                       // wait for 0.1 second
 
-  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-  delay(4000);                       // wait for 4 seconds
-  digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-  delay(4000);                       // wait for 4 seconds
+  for(int blinkInterval = blinkStart; blinkStart <= blinkStop; blinkInterval += blinkStep)
+  {
+    for (int count = 0; count < 10; count++)
+    {
+      digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+      delay(blinkInterval);              // wait a variable time depending on sequence
+      digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
+      delay(blinkInterval);              // wait a variable time depending on sequence
+    }                 
+  }
 }

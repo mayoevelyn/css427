@@ -3,7 +3,7 @@
 const int minBright = 0;
 const int maxBright = 255;
 int timeInMs;
-int input;
+String input;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -13,8 +13,7 @@ void setup() {
   // opens serial port, sets data rate to 9600 bps
   Serial.begin(9600);
   
-  timeInMs = 0;   
-  input = 0;
+  timeInMs = 0;
 }
 
 // the loop function runs over and over again forever
@@ -22,18 +21,17 @@ void loop() {
   // send data only when you receive data:
   if (Serial.available() > 0) {
           // read the incoming byte:
-          input = Serial.read();
-          input -= 48;
+          input = Serial.readString();
 
           // say what you got:
           Serial.print("I received: ");
-          Serial.println(input, DEC);
+          Serial.println(input);
   }
   
-  timeInMs = input * 1000;  
+  timeInMs = input.toInt() * 1000; 
   
   // step through brighntess
-  if (input == 0)
+  if (input.toInt() == 0)
   {
     digitalWrite( LED_BUILTIN, LOW);
   }

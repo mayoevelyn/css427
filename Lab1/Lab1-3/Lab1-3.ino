@@ -17,6 +17,7 @@
   by Arturo Guadalupi
 */
 
+// 3. Easy (5 min): Create a new sketch file and copy the blink code to your sketch file, update led pin to use the LED_BUILTIN constant.
 
 // the setup function runs once when you press reset or power the board
 void setup() {

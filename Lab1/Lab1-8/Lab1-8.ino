@@ -1,21 +1,4 @@
-/*
-  Blink
-  Turns on an LED on for one second, then off for one second, repeatedly.
-
-  Most Arduinos have an on-board LED you can control. On the UNO, MEGA and ZERO 
-  it is attached to digital pin 13, on MKR1000 on pin 6. LED_BUILTIN takes care 
-  of use the correct LED pin whatever is the board used.
-  If you want to know what pin the on-board LED is connected to on your Arduino model, check
-  the Technical Specs of your board  at https://www.arduino.cc/en/Main/Products
-  
-  This example code is in the public domain.
-
-  modified 8 May 2014
-  by Scott Fitzgerald
-  
-  modified 2 Sep 2016
-  by Arturo Guadalupi
-*/
+// 8. Difficult (30+ min): Can you read user’s input to 1) turn on/off and 2) toggle the LED? Try your best to develop such a sketch (program). “Toggle” means if the LED is on, you turn it off, if the LED is off, you turn it on.
 
 int state, input; // 0 is off, 1 is on, 2 is toggle
 
@@ -39,7 +22,7 @@ void loop() {
   if (Serial.available() > 0) {
           // read the incoming byte:
           input = Serial.read();
-          input -= 48;
+          input -= 48;  // ascii conversion
 
           // say what you got:
           Serial.print("I received: ");
@@ -47,14 +30,17 @@ void loop() {
   }
 
   // process user input
+  // turn off
   if (input == 0)
   {
     state = 0;
   }
+  // turn on
   else if (input == 1)
   {
     state = 1;
   }
+  // toggle
   else if (input == 2)
   {
     if (state == 0)
@@ -67,9 +53,10 @@ void loop() {
     }
   }
 
+  // reset user input
   input = -1;
 
-  // turn LED on or off
+  // turn LED on or off depending on state
   if (state == 0)
   {
     digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW

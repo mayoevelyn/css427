@@ -7,6 +7,8 @@
   This example code is in the public domain.
 */
 
+// 2. Easy (5 min): Try the example code “AnalogReadSerial.”
+
 // the setup routine runs once when you press reset:
 void setup() {
   // initialize serial communication at 9600 bits per second:

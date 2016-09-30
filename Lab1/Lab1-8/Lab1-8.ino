@@ -29,6 +29,7 @@ void setup() {
 
   // initialize state to 0 (off)
   state = 0;
+  input = -1;
 }
 
 // the loop function runs over and over again forever
@@ -45,35 +46,36 @@ void loop() {
           Serial.println(input, DEC);
   }
 
-  if (input == 0 || input == 1){
-    if (input != state){
-      state = input;
-      input = -1;
-      if (state == 0){
-        digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-        Serial.println(String(state));
-      }
-      else{
-        digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-        Serial.println(String(state));
-      }
+  // process user input
+  if (input == 0)
+  {
+    state = 0;
+  }
+  else if (input == 1)
+  {
+    state = 1;
+  }
+  else if (input == 2)
+  {
+    if (state == 0)
+    {
+      state = 1;
+    }
+    else
+    {
+      state = 0;
     }
   }
-  else if (input == 2){
-    if (state == 0){
-      state == 1;
-      input = -1;
-      digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-      Serial.println(String(state));
-    }
-    else{
-      state == 0;
-      input = -1;
-      digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-      Serial.println(String(state));
-    }
+
+  input = -1;
+
+  // turn LED on or off
+  if (state == 0)
+  {
+    digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
   }
-//  else{
-//    Serial.println("invalid choice entered");
-//  }  
+  else
+  {
+    digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+  }
 }

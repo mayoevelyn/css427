@@ -23,7 +23,7 @@ void loop()                     // run over and over again
           Serial.println("Enabled");
           isReadTempOn = true;
         }
-        else if (input == 2)
+        else if (input == 0)
         {
           Serial.println("Disabled");
           isReadTempOn = false;

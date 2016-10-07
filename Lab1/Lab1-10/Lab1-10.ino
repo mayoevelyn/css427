@@ -33,7 +33,7 @@ void loop() {
   // step through brighntess
   if (input.toInt() == 0)
   {
-    digitalWrite( LED_BUILTIN, LOW);
+    digitalWrite(LED_BUILTIN, LOW);
   }
   else
   {

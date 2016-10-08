@@ -1,0 +1,1 @@
+This is an optional exercise. Please finish this exercise when you have time. Can you read user’s input to change the speed of fading the LED’s brightness? Please use numbers to indicate the speed.

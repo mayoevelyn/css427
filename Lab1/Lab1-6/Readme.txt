@@ -1,0 +1,1 @@
+Report the iterations and blink interval to serial port and capture the received data in your serial monitor.

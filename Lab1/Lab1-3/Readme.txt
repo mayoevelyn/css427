@@ -1,0 +1,1 @@
+Create a new sketch file and copy the blink code to your sketch file, update led pin to use the LED_BUILTIN constant.

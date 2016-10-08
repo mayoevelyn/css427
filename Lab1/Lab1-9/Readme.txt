@@ -1,0 +1,1 @@
+Can you read user’s input to blink the LED for a certain times and keep it on after the blink? For example, if user’s input is 10, the LED should blink ten times and then keep on.

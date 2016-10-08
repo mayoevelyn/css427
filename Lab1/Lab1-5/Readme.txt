@@ -1,0 +1,1 @@
+Write a loop to update the blink interval at from 500ms to 4000ms, with a step-up value of 500ms. At each interval, performs the blink activity for 10 times.

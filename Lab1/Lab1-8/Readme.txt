@@ -1,0 +1,1 @@
+Can you read user’s input to 1) turn on/off and 2) toggle the LED? Try your best to develop such a sketch (program). “Toggle” means if the LED is on, you turn it off, if the LED is off, you turn it on.

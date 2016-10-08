@@ -1,0 +1,1 @@
+Change the blink interval from 1000 ms to 100ms; then change the interval from 100ms to 4000ms. Please add comments to show the first change.

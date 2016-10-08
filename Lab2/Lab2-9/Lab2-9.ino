@@ -9,18 +9,26 @@
 
 // global variables
 const int thresholdBrightness = 150;
-const int thresholdTemp = 70;
+const int thresholdTemp = 80;
 
 int pollingRateInMs;
 bool isPolling;
 SimpleTimer timer;
 int timerId;
+int currentMenu;
 
 // assign analog pins
-enum
+enum pins
 {
   sensorPhotoCell = 0,
   sensorTemperature = 1
+};
+
+// define menus
+enum menus
+{
+  mainMenu = 0,
+  pollingMenu = 1
 };
 
 // initialize parameters
@@ -33,6 +41,7 @@ void setup()
   pollingRateInMs = 0;
   isPolling = false;
   timerId = -1;
+  currentMenu = mainMenu;
 
   // display instructions
   displayMenu();
@@ -53,10 +62,17 @@ void loop()
 // display interaction menu
 void displayMenu()
 {
-  Serial.println("---Menu---");
-  Serial.println("Press 0 to get sensor readings");
-  Serial.println("Press 1 to set a polling rate");
-  Serial.print("Command: ");
+  if (currentMenu == mainMenu)
+  {
+    Serial.println("---Menu---");
+    Serial.println("Press 0 to get sensor readings");
+    Serial.println("Press 1 to set a polling rate");
+    Serial.print("Command: ");
+  }
+  else if (currentMenu == pollingMenu)
+  {
+    Serial.print("Set polling rate in milliseconds (0 to stop): ");
+  }
 }
 
 // take input from the console
@@ -68,33 +84,55 @@ void serialInputHandler()
     int input = Serial.readString().toInt();        
 
     Serial.println(String(input));
-    Serial.println();
-    
-    switch(input)
-    {
-      case 0:
-        displaySensorReadings();
-        break;
-      case 1:
-        setPollingRate();
-        break;
-    }
 
-    displayMenu();
-  } 
+    if (currentMenu == mainMenu)
+    {
+      switch(input)
+      {
+        case 0:
+          displaySensorReadings();
+          break;
+        case 1:
+          // stop polling while waiting for input
+          isPolling = false;
+          
+          currentMenu = pollingMenu;
+          Serial.println();
+          displayMenu();
+          input = -1;
+          break;
+      }
+    }
+    if (input != -1 && currentMenu == pollingMenu)
+    {
+      setPollingRate(input);
+      currentMenu = mainMenu;
+      Serial.println();
+      displayMenu();
+    }
+  }
 }
 
 // serialInputHandler helper function
 void displaySensorReadings()
 {
+  Serial.println();
+  
   int photocell = readPhotocell();
   float temperature = readTemperature();
 
   // display information for photocell
-  Serial.print(
-    "Value of photocell on pin " + String(sensorPhotoCell) +
-    " using a " + String(pollingRateInMs) + "ms sampling rate: " + String(photocell)
-  );
+  if (pollingRateInMs > 0)
+  {
+    Serial.print(
+      "Value of photocell on pin " + String(sensorPhotoCell) +
+      " using a " + String(pollingRateInMs) + "ms sampling rate: " + String(photocell)
+    );
+  }
+  else
+  {
+    Serial.print("Value of photocell on pin " + String(sensorPhotoCell) + ": " + String(photocell));
+  }
   if (photocell > thresholdBrightness)
   {
     Serial.print(" (above ");
@@ -106,10 +144,17 @@ void displaySensorReadings()
   Serial.println(String(thresholdBrightness) + " threshold)");
 
   //display information for temperature
-  Serial.print(
-    "Value of temperature on pin " + String(sensorTemperature) +
-    " using a " + String(pollingRateInMs) + "ms sampling rate: " + String(temperature)
-  );
+  if (pollingRateInMs > 0)
+  {
+    Serial.print(
+      "Value of temperature on pin " + String(sensorTemperature) +
+      " using a " + String(pollingRateInMs) + "ms sampling rate: " + String(temperature)
+    );
+  }
+  else
+  {
+    Serial.print("Value of temperature on pin " + String(sensorTemperature) + ": " + String(temperature));
+  }
   if (temperature > thresholdTemp)
   {
     Serial.print(" (above ");
@@ -121,35 +166,35 @@ void displaySensorReadings()
   Serial.println(String(thresholdTemp) + " threshold)");
 
   Serial.println();
+  displayMenu();
 }
 
 // serialInputHandler helper function
-void setPollingRate()
+void setPollingRate(int input)
 {
-  // stop polling while waiting for input
-  isPolling = false;
-
-  // display instructions
-  Serial.print("Set polling rate in milliseconds (0 to stop): ");
-  
-  // read the incoming byte:
-  int input = Serial.readString().toInt();
-
-  Serial.println(String(input));
-  Serial.println();
-
   pollingRateInMs = input;
   
-  if (pollingRateInMs == 0 && timerId != -1)
+  if (pollingRateInMs == 0)
   {
     isPolling = false;
-    timer.deleteTimer(timerId);
+    if (timerId != -1)
+    {
+      timer.deleteTimer(timerId);
+    }
   }
   else
   {
     isPolling = true;
-    timerId = timer.setInterval(pollingRateInMs, displaySensorReadings);
+    timer.deleteTimer(timerId);
+    timerId = timer.setInterval(pollingRateInMs, displayTimerOutput);
   }
+}
+
+// setPollingRate helper function
+void displayTimerOutput()
+{
+  Serial.println();
+  displaySensorReadings();
 }
 
 // displaySensorReadings helper function

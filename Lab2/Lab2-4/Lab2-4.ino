@@ -1,3 +1,8 @@
+// 4. Medium (15 min): Enable or disable temperature sensor based on user’s
+// input from serial communication, report “Disabled” to the host when the
+// sensor is disabled, report sensor readings to the host when the sensor is
+// enabled.
+
 //TMP36 Pin Variables
 int sensorPin = 0; //the analog pin the TMP36's Vout (sense) pin is connected to
                         //the resolution is 10 mV / degree centigrade with a

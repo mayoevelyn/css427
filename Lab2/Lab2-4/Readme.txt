@@ -1,0 +1,1 @@
+Enable or disable temperature sensor based on user’s input from serial communication, report “Disabled” to the host when the sensor is disabled, report sensor readings to the host when the sensor is enabled.

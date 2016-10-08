@@ -1,0 +1,1 @@
+Turn on/off LED when the photocell sensor is covered/uncovered, and send a message to host PC through serial communication when the status gets changed. Be aware that you need to choose a proper resistor.

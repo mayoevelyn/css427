@@ -1,0 +1,1 @@
+Change the onboard LED’s brightness based on temperature: the higher temperature is, the brighter the LED is.

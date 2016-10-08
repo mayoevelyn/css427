@@ -1,0 +1,1 @@
+Change temperature sensor sampling rate based on user’s input from serial communication (use “0” as the disable command) and report the current sampling rate and sampled data to the host PC.

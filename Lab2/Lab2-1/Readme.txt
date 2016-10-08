@@ -1,0 +1,1 @@
+Connect the photocell sensor to an Analog Pin, read the sensor data and report to host PC through serial communication. Be aware that you need to choose a proper resistor when connecting the photocell sensor.

@@ -1,3 +1,6 @@
+// 3. Easy (15 min): Connect the temperature sensor to Analog Pin XXX, read
+// temperature sensor data every 1 second and print the reading to the host PC.
+
 //TMP36 Pin Variables
 int sensorPin = 0; //the analog pin the TMP36's Vout (sense) pin is connected to
                         //the resolution is 10 mV / degree centigrade with a

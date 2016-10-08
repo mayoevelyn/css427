@@ -1,0 +1,1 @@
+Connect the temperature sensor to Analog Pin XXX, read temperature sensor data every 1 second and print the reading to the host PC.

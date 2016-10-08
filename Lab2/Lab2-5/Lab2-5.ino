@@ -1,3 +1,7 @@
+// 5. Medium (15 min): Change temperature sensor sampling rate based on user’s
+// input from serial communication (use “0” as the disable command) and report
+// the current sampling rate and sampled data to the host PC.
+
 //TMP36 Pin Variables
 int sensorPin = 0; //the analog pin the TMP36's Vout (sense) pin is connected to
                         //the resolution is 10 mV / degree centigrade with a

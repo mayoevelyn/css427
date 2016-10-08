@@ -1,0 +1,1 @@
+Given a threshold configured from user’s input, turn on the LED when the temperature is over the threshold; turn off the LED otherwise.

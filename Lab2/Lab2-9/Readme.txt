@@ -1,0 +1,1 @@
+Report photocell sensor and temperature sensor value together in one message. In each message, the following information should be included for each sensor: PIN, sampling rate, value, and threshold. The message should be sent to the host PC periodically or upon receiving a user’s request (on demand). The periodical report interval should be configurable by user’s input.

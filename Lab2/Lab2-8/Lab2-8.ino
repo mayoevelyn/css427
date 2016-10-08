@@ -1,3 +1,7 @@
+// 8. Medium (15 min): Change the temperature sensor’s reference level based on
+// user’s input and report the new sensor reading according to the new
+// reference level to host.
+
 //TMP36 Pin Variables
 int sensorPin = 0; //the analog pin the TMP36's Vout (sense) pin is connected to
                         //the resolution is 10 mV / degree centigrade with a

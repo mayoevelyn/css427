@@ -5,10 +5,16 @@
 // user’s request (on demand). The periodical report interval should be
 // configurable by user’s input.
 
+#include "SimpleTimer.h"  // http://playground.arduino.cc/Code/SimpleTimer
+
 // global variables
-int thresholdTemp;
+const int thresholdBrightness = 150;
+const int thresholdTemp = 70;
+
 int pollingRateInMs;
 bool isPolling;
+SimpleTimer timer;
+int timerId;
 
 // assign analog pins
 enum
@@ -24,9 +30,9 @@ void setup()
                        //to view the result open the serial monitor 
 
   // initialize globals
-  thresholdTemp = 0;
   pollingRateInMs = 0;
   isPolling = false;
+  timerId = -1;
 
   // display instructions
   displayMenu();
@@ -38,16 +44,19 @@ void loop()
   // get input from console
   serialInputHandler();
 
-  
+  if (isPolling)
+  {
+    timer.run();
+  }
 }
 
 // display interaction menu
 void displayMenu()
 {
+  Serial.println("---Menu---");
   Serial.println("Press 0 to get sensor readings");
   Serial.println("Press 1 to set a polling rate");
-  Serial.println("Press 2 to set a temperature threshold");
-  Serial.print("Menu: ");
+  Serial.print("Command: ");
 }
 
 // take input from the console
@@ -69,74 +78,77 @@ void serialInputHandler()
       case 1:
         setPollingRate();
         break;
-      case 2:
-        setThresholdTemp();
-        break;
-      default:
-        displayMenu();
     }
+
+    displayMenu();
   } 
 }
 
+// serialInputHandler helper function
 void displaySensorReadings()
 {
-  
+  int photocell = readPhotocell();
+  float temperature = readTemperature();
+
+  // display information for photocell
+  Serial.print(
+    "Value of photocell on pin " + String(sensorPhotoCell) +
+    " using a " + String(pollingRateInMs) + "ms sampling rate: " + String(photocell)
+  );
+  if (photocell > thresholdBrightness)
+  {
+    Serial.print(" (above ");
+  }
+  else
+  {
+    Serial.print(" (below ");
+  }
+  Serial.println(String(thresholdBrightness) + " threshold)");
+
+  //display information for temperature
+  Serial.print(
+    "Value of temperature on pin " + String(sensorTemperature) +
+    " using a " + String(pollingRateInMs) + "ms sampling rate: " + String(temperature)
+  );
+  if (temperature > thresholdTemp)
+  {
+    Serial.print(" (above ");
+  }
+  else
+  {
+    Serial.print(" (below ");
+  }
+  Serial.println(String(thresholdTemp) + " threshold)");
+
+  Serial.println();
 }
 
 // serialInputHandler helper function
 void setPollingRate()
 {
-  if (Serial.available() > 0) 
+  // stop polling while waiting for input
+  isPolling = false;
+
+  // display instructions
+  Serial.print("Set polling rate in milliseconds (0 to stop): ");
+  
+  // read the incoming byte:
+  int input = Serial.readString().toInt();
+
+  Serial.println(String(input));
+  Serial.println();
+
+  pollingRateInMs = input;
+  
+  if (pollingRateInMs == 0 && timerId != -1)
   {
-    // stop polling while waiting for input
     isPolling = false;
-
-    // display instructions
-    Serial.print("Set polling rate in milliseconds (0 to stop): ");
-    
-    // read the incoming byte:
-    int input = Serial.readString().toInt();
-
-    Serial.println(String(input));
-    Serial.println();
-
-    pollingRateInMs = input;
-    
-    if (pollingRateInMs != 0)
-    {
-      isPolling = true;
-    }
+    timer.deleteTimer(timerId);
   }
-}
-
-// serialInputHandler helper function
-void setThresholdTemp()
-{
-  if (Serial.available() > 0) 
+  else
   {
-    // stop polling while waiting for input
-    bool wasPolling = isPolling;
-    if (isPolling)
-    {
-      isPolling = false;
-    }
-
-    // display instructions
-    Serial.print("Set temperature threshold in degrees F: ");
-    
-    // read the incoming byte:
-    int input = Serial.readString().toInt();
-
-    Serial.println(String(input));
-    Serial.println();
-
-    thresholdTemp = input;
-
-    // resume polling
-    if (wasPolling)
-    {
-      isPolling = true;
-    }
+    isPolling = true;
+    timerId = timer.setInterval(pollingRateInMs, displaySensorReadings);
   }
 }
 

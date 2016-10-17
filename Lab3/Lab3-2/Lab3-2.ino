@@ -9,7 +9,7 @@
     {'1','2','3'},
     {'4','5','6'},
     {'7','8','9'},
-    {'#','0','*'}
+    {'*','0','#'}
   };
   byte rowPins[rows] = {17, 16, 15, 14}; //connect to the row pinouts of the keypad
   byte colPins[cols] = {20, 19, 18}; //connect to the column pinouts of the keypad

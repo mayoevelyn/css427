@@ -13,20 +13,26 @@
 //byte colPins[cols] = {21, 20, 19}; //connect to the column pinouts of the keypad
 //Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, rows, cols );
 
-int pin = 21;
-volatile int state = LOW;
+const byte ledPin = 13;
+const byte interruptPin = 20;
+volatile byte state = LOW;
 
 void setup()
 {
-  pinMode(pin, OUTPUT);
-  attachInterrupt(digitalPinToInterrupt(pin), ISR, mode);
+  //https://www.arduino.cc/en/Reference/AttachInterrupt
+  //http://rasas.me/projects/arduino/keypad-activated-interrupt
+  //https://www.parallax.com/sites/default/files/downloads/27899-4x4-Matrix-Membrane-Keypad-v1.2.pdf
   
-  //Serial.begin(9600);
+  pinMode(ledPin, OUTPUT);
+  pinMode(interruptPin, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(interruptPin), blink, FALLING);
+  
+  Serial.begin(9600);
 }
 
 void loop()
 {
-  digitalWrite(pin, state);
+  digitalWrite(ledPin, state);
 
 //  char key = keypad.getKey();
 //
@@ -36,7 +42,9 @@ void loop()
 //  }
 }
 
+// This is the ISR
 void blink()
 {
   state = !state;
+  Serial.println("went to low");
 }

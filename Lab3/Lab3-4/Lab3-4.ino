@@ -22,15 +22,27 @@ byte rowPins[rows] = {18, 17, 16, 15}; //connect to the row pinouts of the keypa
 byte colPins[cols] = {21, 20, 19}; //connect to the column pinouts of the keypad
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, rows, cols );
 
+bool enableLed;
 bool isLedOn;
+bool isAsteriskPressed;
+bool isOctothorpePressed;
+unsigned long loopCount;
+unsigned long startTime;
 
 // Setup
 void setup()
 {
-  // Prepare keypad
-  keypad.addEventListener(keypadEvent);  // Add an event listener.
-  keypad.setHoldTime(2000);
+  // Initialize globals
+  enableLed = false;
+  isLedOn = false;
+  isAsteriskPressed = false;
+  isOctothorpePressed = false;
+  loopCount = 0;
+  startTime = 0;
 
+  // Prepare keypad
+  keypad.setHoldTime(2000);
+  
   // Prepare led
   pinMode(LED_BUILTIN, OUTPUT);
   
@@ -38,10 +50,89 @@ void setup()
   Serial.begin(9600);
 }
 
+// Loop
 void loop()
 {
-  char key = keypad.getKey();
-  
+  scanKeys();
+  testAlarm();
+  setLED();
+}
+
+// Scan Keys
+void scanKeys()
+{
+  if (keypad.getKeys())
+  {
+    for (int i=0; i < LIST_MAX; i++)   // Scan the whole key list.
+    {
+      if (keypad.key[i].stateChanged)   // Only find keys that have changed state.
+      {
+        if (keypad.key[i].kstate == PRESSED) 
+        {                   
+          if (keypad.key[i].kchar == '*')
+          {
+            isAsteriskPressed = true;
+            enableLed = false;
+            Serial.println("LED is off");
+          }
+          
+          if (keypad.key[i].kchar == '#')
+          {
+            isOctothorpePressed = true;
+          }
+        }
+
+        if (keypad.key[i].kstate == HOLD) 
+        {                   
+          if (keypad.key[i].kchar == '#')
+          {
+            isOctothorpePressed = true;
+            enableLed = true;
+            Serial.println("LED is on");
+          }
+        }
+
+        if (keypad.key[i].kstate == RELEASED) 
+        {                   
+          if (keypad.key[i].kchar == '*')
+          {
+            isAsteriskPressed = false;
+          }
+          
+          if (keypad.key[i].kchar == '#')
+          {
+            isOctothorpePressed = false;
+          }
+        }
+      }
+    } 
+  }
+}
+
+// Test Alarm
+void testAlarm()
+{
+  loopCount++;
+  if ((millis() - startTime) > 100) 
+  {
+    if (isAsteriskPressed && isOctothorpePressed)
+    {
+      isLedOn = !isLedOn;
+      Serial.println("Alarm!");
+    }
+    else
+    {
+      isLedOn = enableLed;
+    }
+    
+    startTime = millis();
+    loopCount = 0;
+  }
+}
+
+// Set LED
+void setLED()
+{
   if (isLedOn)
   {
     digitalWrite(LED_BUILTIN, HIGH);
@@ -49,28 +140,6 @@ void loop()
   else
   {
     digitalWrite(LED_BUILTIN, LOW);
-  }
-}
-
-void keypadEvent(KeypadEvent key)
-{
-  switch (keypad.getState())
-  {
-    case HOLD:
-      if (key == '#')
-      {
-        isLedOn = true;
-        Serial.println("led is on");
-      }
-      break;
-    
-    case PRESSED:
-      if (key == '*')
-      {
-        isLedOn = false;
-        Serial.println("led is off");
-      }
-      break;
   }
 }
 

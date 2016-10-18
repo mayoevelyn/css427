@@ -109,6 +109,7 @@ void col2isr()
   interrupts();
 }
 
+// Get Row
 int getRow()
 {
   for (int i = 0; i < rows; i++)

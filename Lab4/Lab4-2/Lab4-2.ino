@@ -1,6 +1,7 @@
 #include <Key.h>
 #include <Keypad.h>
 #include <SoftwareSerial.h>
+#include "Adafruit_LSM303_U.h"
 
 // detect Arduino version
 #if ARDUINO >= 100

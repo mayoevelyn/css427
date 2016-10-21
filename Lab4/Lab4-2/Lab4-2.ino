@@ -108,15 +108,19 @@ void loop()
         {
             case '0':
                 sendDataType = NONE;
+                Serial.println("Send data:  NONE");
                 break;
             case '1':
                 sendDataType = ACCEL;
+                Serial.println("Send data:  ACCEL ONLY");
                 break;
             case '2':
                 sendDataType = MAG;
+                Serial.println("Send data:  MAG ONLY");
                 break;
             case '3':
                 sendDataType = BOTH;
+                Serial.println("Send data:  ACCEL AND MAG");
                 break;
         }
     }
@@ -133,7 +137,6 @@ void loop()
     if (boardType == 1 && incomingData)
     {
         mySerial.println("ACK!");
-        Serial.println("From mega2: " + String(input));
         incomingData = false;
     }
 

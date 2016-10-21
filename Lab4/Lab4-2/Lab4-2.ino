@@ -91,14 +91,9 @@ void loop()
         mySerial.println(String(key));
     }
 
-    if (mySerial.available())
+    if (boardType == 1 && mySerial.available())
     {
         char input = mySerial.read();
-//        while (mySerial.available())
-//        {
-//            // ignore all other data
-//            delay(1);
-//        }
         incomingData = true;
 
         switch (input)
@@ -115,6 +110,15 @@ void loop()
             case '3':
                 sendDataType = BOTH;
                 break;
+        }
+    }
+
+    if (boardType == 2 && mySerial.available())
+    {
+        while (mySerial.available())
+        {
+            Serial.write(mySerial.read());
+            delay(1);
         }
     }
     

@@ -85,6 +85,7 @@ void setup()
 void loop()
 {
     char key = keypad.getKey();
+    char input;
     
     if (boardType == 2 && key != NO_KEY)
     {
@@ -93,7 +94,14 @@ void loop()
 
     if (boardType == 1 && mySerial.available())
     {
-        char input = mySerial.read();
+        input = mySerial.read();
+        
+        while (mySerial.available())
+        {
+            mySerial.read();
+            delay(1);
+        }
+        
         incomingData = true;
 
         switch (input)
@@ -125,6 +133,7 @@ void loop()
     if (boardType == 1 && incomingData)
     {
         mySerial.println("ACK!");
+        Serial.println("From mega2: " + String(input));
         incomingData = false;
     }
 
@@ -208,21 +217,19 @@ void displayMagSensorDetails(void)
 
 void getAccelSensorData()
 {
-    /* Get a new sensor event */
+    // Get a new sensor event
     sensors_event_t event;
     accel.getEvent(&event);
     
-    /* Display the results (acceleration is measured in m/s^2) */
+    // Display the results (acceleration is measured in m/s^2) over the serial connection
     mySerial.print("X: "); mySerial.print(event.acceleration.x); mySerial.print("  ");
     mySerial.print("Y: "); mySerial.print(event.acceleration.y); mySerial.print("  ");
     mySerial.print("Z: "); mySerial.print(event.acceleration.z); mySerial.print("  ");mySerial.println("m/s^2 ");
     
-    /* Note: You can also get the raw (non unified values) for */
-    /* the last data sample as follows. The .getEvent call populates */
-    /* the raw values used below. */
-    //Serial.print("X Raw: "); Serial.print(accel.raw.x); Serial.print("  ");
-    //Serial.print("Y Raw: "); Serial.print(accel.raw.y); Serial.print("  ");
-    //Serial.print("Z Raw: "); Serial.print(accel.raw.z); Serial.println("");
+    // Display the results (acceleration is measured in m/s^2) on the console
+    Serial.print("X: "); Serial.print(event.acceleration.x); Serial.print("  ");
+    Serial.print("Y: "); Serial.print(event.acceleration.y); Serial.print("  ");
+    Serial.print("Z: "); Serial.print(event.acceleration.z); Serial.print("  ");Serial.println("m/s^2 ");
     
     /* Delay before the next sample */
     delay(500);
@@ -230,21 +237,19 @@ void getAccelSensorData()
 
 void getMagSensorData()
 {
-    /* Get a new sensor event */
+    // Get a new sensor event
     sensors_event_t event;
     mag.getEvent(&event);
     
-    /* Display the results (magnetic vector values are in micro-Tesla (uT)) */
+    // Display the results (magnetic vector values are in micro-Tesla (uT)) over the serial connection
     mySerial.print("X: "); mySerial.print(event.magnetic.x); mySerial.print("  ");
     mySerial.print("Y: "); mySerial.print(event.magnetic.y); mySerial.print("  ");
     mySerial.print("Z: "); mySerial.print(event.magnetic.z); mySerial.print("  ");mySerial.println("uT");
     
-    /* Note: You can also get the raw (non unified values) for */
-    /* the last data sample as follows. The .getEvent call populates */
-    /* the raw values used below. */
-    // Serial.print("X Raw: "); Serial.print(mag.raw.x); Serial.print("  ");
-    // Serial.print("Y Raw: "); Serial.print(mag.raw.y); Serial.print("  ");
-    // Serial.print("Z Raw: "); Serial.print(mag.raw.z); Serial.println("");
+    // Display the results (magnetic vector values are in micro-Tesla (uT)) on the console
+    Serial.print("X: "); Serial.print(event.magnetic.x); Serial.print("  ");
+    Serial.print("Y: "); Serial.print(event.magnetic.y); Serial.print("  ");
+    Serial.print("Z: "); Serial.print(event.magnetic.z); Serial.print("  ");Serial.println("uT");
     
     /* Delay before the next sample */
     delay(500);

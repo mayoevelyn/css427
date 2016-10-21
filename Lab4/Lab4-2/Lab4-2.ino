@@ -49,16 +49,94 @@ Adafruit_LSM303_Accel_Unified accel = Adafruit_LSM303_Accel_Unified(54321);
 // Assign a unique ID to this sensor at the same time
 Adafruit_LSM303_Mag_Unified mag = Adafruit_LSM303_Mag_Unified(12345);
 
+enum sendTypes {
+    NONE = 0,
+    ACCEL = 1,
+    MAG = 2,
+    BOTH = 3
+};
+
+int sendDataType;
+
 // Setup
 void setup()
 {
-#ifndef ESP8266
-    while (!Serial);     // will pause Zero, Leonardo, etc until serial console opens
-#endif
+    #ifndef ESP8266
+        while (!Serial);     // will pause Zero, Leonardo, etc until serial console opens
+    #endif
+    
     Serial.begin(9600);
     delay(1000);
     Serial.println("Booting " + boardName);
+    sendDataType = 0;
 
+    if (boardType == 1)
+    {
+        testAccelSensor();
+        testMagSensor();
+    }
+    
+    // set the data rate for the SoftwareSerial port
+    mySerial.begin(4800);
+    incomingData = false;
+}
+
+// Loop
+void loop()
+{
+    char key = keypad.getKey();
+    
+    if (boardType == 2 && key != NO_KEY)
+    {
+        mySerial.println(String(key));
+    }
+
+    if (mySerial.available())
+    {
+        char input = mySerial.read();
+//        while (mySerial.available())
+//        {
+//            // ignore all other data
+//            delay(1);
+//        }
+        incomingData = true;
+
+        switch (input)
+        {
+            case '0':
+                sendDataType = NONE;
+                break;
+            case '1':
+                sendDataType = ACCEL;
+                break;
+            case '2':
+                sendDataType = MAG;
+                break;
+            case '3':
+                sendDataType = BOTH;
+                break;
+        }
+    }
+    
+    if (boardType == 1 && incomingData)
+    {
+        mySerial.println("ACK!");
+        incomingData = false;
+    }
+
+    if (sendDataType == ACCEL || sendDataType == BOTH)
+    {
+        getAccelSensorData();
+    }
+
+    if (sendDataType == MAG || sendDataType == BOTH)
+    {
+        getMagSensorData();
+    }
+}
+
+void testAccelSensor()
+{
     Serial.println("Accelerometer Test"); Serial.println("");
     
     // Initialise the sensor
@@ -71,7 +149,10 @@ void setup()
 
     // Display some basic information on this sensor
     displayAccelSensorDetails();
+}
 
+void testMagSensor()
+{
     Serial.println("Magnetometer Test"); Serial.println("");
 
     // Enable auto-gain
@@ -87,40 +168,6 @@ void setup()
     
     // Display some basic information on this sensor
     displayMagSensorDetails();
-
-    // set the data rate for the SoftwareSerial port
-    mySerial.begin(4800);
-    incomingData = false;
-}
-
-// Loop
-void loop()
-{
-    //getAccelSensorData();
-    getMagSensorData();
-    
-    char key = keypad.getKey();
-    
-    if (boardType == 2 && key != NO_KEY)
-    {
-        mySerial.println("From mega: " + String(key));
-    }
-
-    if (mySerial.available())
-    {
-        while (mySerial.available())
-        {
-            Serial.write(mySerial.read());
-            delay(1);
-        }
-        incomingData = true;
-    }
-    
-    if (boardType == 1 && incomingData)
-    {
-        mySerial.println("ACK!");
-        incomingData = false;
-    }
 }
 
 void displayAccelSensorDetails(void)
@@ -162,9 +209,9 @@ void getAccelSensorData()
     accel.getEvent(&event);
     
     /* Display the results (acceleration is measured in m/s^2) */
-    Serial.print("X: "); Serial.print(event.acceleration.x); Serial.print("  ");
-    Serial.print("Y: "); Serial.print(event.acceleration.y); Serial.print("  ");
-    Serial.print("Z: "); Serial.print(event.acceleration.z); Serial.print("  ");Serial.println("m/s^2 ");
+    mySerial.print("X: "); mySerial.print(event.acceleration.x); mySerial.print("  ");
+    mySerial.print("Y: "); mySerial.print(event.acceleration.y); mySerial.print("  ");
+    mySerial.print("Z: "); mySerial.print(event.acceleration.z); mySerial.print("  ");mySerial.println("m/s^2 ");
     
     /* Note: You can also get the raw (non unified values) for */
     /* the last data sample as follows. The .getEvent call populates */
@@ -184,9 +231,9 @@ void getMagSensorData()
     mag.getEvent(&event);
     
     /* Display the results (magnetic vector values are in micro-Tesla (uT)) */
-    Serial.print("X: "); Serial.print(event.magnetic.x); Serial.print("  ");
-    Serial.print("Y: "); Serial.print(event.magnetic.y); Serial.print("  ");
-    Serial.print("Z: "); Serial.print(event.magnetic.z); Serial.print("  ");Serial.println("uT");
+    mySerial.print("X: "); mySerial.print(event.magnetic.x); mySerial.print("  ");
+    mySerial.print("Y: "); mySerial.print(event.magnetic.y); mySerial.print("  ");
+    mySerial.print("Z: "); mySerial.print(event.magnetic.z); mySerial.print("  ");mySerial.println("uT");
     
     /* Note: You can also get the raw (non unified values) for */
     /* the last data sample as follows. The .getEvent call populates */

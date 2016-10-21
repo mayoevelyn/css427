@@ -10,12 +10,15 @@
 #endif
 
 // determine board type
-#if defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega16U4__)
-    String boardName = "Arduino Micro or Leonardo";
+#if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
+    String boardName = "Arduino Uno or older";
     int boardType = 0;
+#elif defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega16U4__)
+    String boardName = "Arduino Micro or Leonardo";
+    int boardType = 1;
 #elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
     String boardName = "Arduino Mega";
-    int boardType = 1;
+    int boardType = 2;
 #else
     String boardName = "Unknown board.  Check wikipedia";
     int boardType -1;
@@ -35,15 +38,18 @@ byte colPins[cols] = {34, 32, 30}; //connect to the column pinouts of the keypad
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, rows, cols );
 
 SoftwareSerial mySerial(10, 11); // RX, TX
+bool incomingData;
 
 // Setup
 void setup()
 {
     Serial.begin(9600);
-    Serial.println("I am running on an " + boardName);
+    delay(1000);
+    Serial.println("Booting " + boardName);
 
     // set the data rate for the SoftwareSerial port
     mySerial.begin(4800);
+    incomingData = false;
 }
 
 // Loop
@@ -51,18 +57,24 @@ void loop()
 {
     char key = keypad.getKey();
     
-    if (key != NO_KEY)
+    if (boardType == 2 && key != NO_KEY)
     {
         mySerial.println("From mega: " + String(key));
     }
 
     if (mySerial.available())
     {
-        Serial.write(mySerial.read());
+        while (mySerial.available())
+        {
+            Serial.write(mySerial.read());
+            delay(1);
+        }
+        incomingData = true;
     }
     
-    if (Serial.available())
+    if (boardType == 1 && incomingData)
     {
-        mySerial.write(Serial.read());
+        mySerial.println("ACK!");
+        incomingData = false;
     }
 }

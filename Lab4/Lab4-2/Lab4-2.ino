@@ -1,3 +1,20 @@
+// 2. Ninja (90min): Connect the sensor board to the Arduino Micro device over I2C interface.
+// a. Sensor board information: https://www.adafruit.com/products/1120. You can
+//    also find example code there.
+// b. You may download the code provided by Adafruit, but you need to change it by
+//    splitting the read function to two functions: one is to read accelerometer only,
+//    and the other one is to read magnetometer only.
+// c. Changing the code that you have wrote in the first exercise. Once key “1” is
+//    pressed on the Mega device, the accelerometer information should be collected
+//    on the Micro device and sent to PC. The Micro also ACKs the Mega device for
+//    the received command information. Once key “2” is pressed, the magnetometer
+//    information should be collected on the Micro device and sent to PC. The Micro
+//    also ACKs the Mega device for the received command information. Once key “3”
+//    is pressed, information about both accelerometer and magnetometer
+//    information should be collected on the Micro device and sent to PC, and the
+//    Micro should ACK the command. You need to show the data printed at two
+//    SerialMonitor windows.
+
 #include <Key.h>
 #include <Keypad.h>
 #include <SoftwareSerial.h>
@@ -5,14 +22,14 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_LSM303_U.h>
 
-// detect Arduino version
+// Detect Arduino version
 #if ARDUINO >= 100
     #include "Arduino.h"
 #else
     #include "WProgram.h"
 #endif
 
-// determine board type
+// Determine board type
 #if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
     String boardName = "Arduino Uno or older";
     int boardType = 0;
@@ -40,15 +57,16 @@ byte rowPins[rows] = {28, 26, 24, 22}; //connect to the row pinouts of the keypa
 byte colPins[cols] = {34, 32, 30}; //connect to the column pinouts of the keypad
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, rows, cols );
 
+// Setup device interconnect over serial
 SoftwareSerial mySerial(10, 11); // RX, TX
-bool incomingData;
 
-// Assign a unique ID to this sensor at the same time
+// Assign a unique ID to this acceleration sensor
 Adafruit_LSM303_Accel_Unified accel = Adafruit_LSM303_Accel_Unified(54321);
 
-// Assign a unique ID to this sensor at the same time
+// Assign a unique ID to this compass sensor
 Adafruit_LSM303_Mag_Unified mag = Adafruit_LSM303_Mag_Unified(12345);
 
+// Define behavior modes for Micro
 enum sendTypes {
     NONE = 0,
     ACCEL = 1,
@@ -56,6 +74,8 @@ enum sendTypes {
     BOTH = 3
 };
 
+// Global variables
+bool incomingData;
 int sendDataType;
 
 // Setup
@@ -66,17 +86,20 @@ void setup()
     #endif
     
     Serial.begin(9600);
+	
     delay(1000);
     Serial.println("Booting " + boardName);
-    sendDataType = 0;
+    
+	sendDataType = NONE;
 
+	// Display sensor test data to the console for Micro
     if (boardType == 1)
     {
         testAccelSensor();
         testMagSensor();
     }
     
-    // set the data rate for the SoftwareSerial port
+    // Set the data rate for the SoftwareSerial port
     mySerial.begin(4800);
     incomingData = false;
 }
@@ -84,18 +107,23 @@ void setup()
 // Loop
 void loop()
 {
-    char key = keypad.getKey();
-    char input;
+    // Save any single input from the keypad
+	char key = keypad.getKey();
     
+	// Transmit key from Mega
     if (boardType == 2 && key != NO_KEY)
     {
         mySerial.println(String(key));
     }
-
+	
+	// Read input on Micro and set transmit mode
+	char input;
     if (boardType == 1 && mySerial.available())
     {
-        input = mySerial.read();
+        // Read first byte of data (expecting first character is a number)
+		input = mySerial.read();
         
+		// Ignore any other data by looping until there is no more data being transmitted
         while (mySerial.available())
         {
             mySerial.read();
@@ -104,6 +132,7 @@ void loop()
         
         incomingData = true;
 
+		// Set behavior on Micro
         switch (input)
         {
             case '0':
@@ -125,6 +154,14 @@ void loop()
         }
     }
 
+	// Transmit ACK from Micro after data was received
+	if (boardType == 1 && incomingData)
+    {
+        mySerial.println("ACK!");
+        incomingData = false;
+    }
+	
+	// On Mega, receive ACK or sensor data
     if (boardType == 2 && mySerial.available())
     {
         while (mySerial.available())
@@ -133,24 +170,21 @@ void loop()
             delay(1);
         }
     }
-    
-    if (boardType == 1 && incomingData)
-    {
-        mySerial.println("ACK!");
-        incomingData = false;
-    }
 
-    if (sendDataType == ACCEL || sendDataType == BOTH)
+	// Transmit accel sensor data from Micro
+    if (boardType == 1 && (sendDataType == ACCEL || sendDataType == BOTH))
     {
         getAccelSensorData();
     }
 
-    if (sendDataType == MAG || sendDataType == BOTH)
+	// Transmit compass sensor data from Micro
+    if (boardType == 1 && (sendDataType == MAG || sendDataType == BOTH))
     {
         getMagSensorData();
     }
 }
 
+// Test Accel Sensor
 void testAccelSensor()
 {
     Serial.println("Accelerometer Test"); Serial.println("");
@@ -167,6 +201,7 @@ void testAccelSensor()
     displayAccelSensorDetails();
 }
 
+// Test Compass Sensor
 void testMagSensor()
 {
     Serial.println("Magnetometer Test"); Serial.println("");
@@ -186,6 +221,7 @@ void testMagSensor()
     displayMagSensorDetails();
 }
 
+// Display Accel Sensor Details
 void displayAccelSensorDetails(void)
 {
     sensor_t sensor;
@@ -202,6 +238,7 @@ void displayAccelSensorDetails(void)
     delay(500);
 }
 
+// Display Mag Sensor Details
 void displayMagSensorDetails(void)
 {
     sensor_t sensor;
@@ -218,6 +255,7 @@ void displayMagSensorDetails(void)
     delay(500);
 }
 
+// Get Accel Sensor Data
 void getAccelSensorData()
 {
     // Get a new sensor event
@@ -234,10 +272,11 @@ void getAccelSensorData()
     Serial.print("Y: "); Serial.print(event.acceleration.y); Serial.print("  ");
     Serial.print("Z: "); Serial.print(event.acceleration.z); Serial.print("  ");Serial.println("m/s^2 ");
     
-    /* Delay before the next sample */
+    // Delay before the next sample
     delay(500);
 }
 
+// Get Mag Sensor Data
 void getMagSensorData()
 {
     // Get a new sensor event
@@ -254,7 +293,6 @@ void getMagSensorData()
     Serial.print("Y: "); Serial.print(event.magnetic.y); Serial.print("  ");
     Serial.print("Z: "); Serial.print(event.magnetic.z); Serial.print("  ");Serial.println("uT");
     
-    /* Delay before the next sample */
+    // Delay before the next sample
     delay(500);
 }
-

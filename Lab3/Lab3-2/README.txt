@@ -1,0 +1,1 @@
+2. Easy (5 min): Whenever a key is pressed, print the key value to the host PC through serial communication.

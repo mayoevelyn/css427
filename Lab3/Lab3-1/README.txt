@@ -1,0 +1,2 @@
+1. Preparation (15 min): Connect the keypad to Arduino and install the keypad library if it is not installed.
+   You need to check this page at first: http://playground.arduino.cc/Code/Keypad. No coding for this exercise.

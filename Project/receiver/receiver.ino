@@ -1,24 +1,37 @@
-char input;
+#include <XBee.h>
+
+//Receives a ZB RX packet and sets a PWM value based on packet data.
+
+XBee xbee = XBee();
+XBeeResponse response = XBeeResponse();
+
+// create reusable response objects for responses we expect to handle 
+ZBRxResponse rx = ZBRxResponse();
+ModemStatusResponse msr = ModemStatusResponse();
 
 void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(9600);
-  pinMode(53, OUTPUT);
+    pinMode(53, OUTPUT);
+    
+    Serial.begin(9600);
+    xbee.begin(Serial);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  if (Serial.available())
-  {
-    input = Serial.read();
-
-    if (input == '0')
+    xbee.readPacket();
+    
+    if (xbee.getResponse().isAvailable())
     {
-      digitalWrite(53, LOW);
+        // got something
+        
+        if (xbee.getResponse().getApiId() == ZB_RX_RESPONSE)
+        {
+            // got a zb rx packet
+            
+            // now fill our zb rx class
+            xbee.getResponse().getZBRxResponse(rx);
+            
+            // set dataLed to value of the first byte in the data
+            digitalWrite(53, rx.getData(0));
+        }
     }
-    if (input == '1')
-    {
-      digitalWrite(53, HIGH);
-    }
-  }
 }

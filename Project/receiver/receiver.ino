@@ -28,8 +28,7 @@ Error led is flashed if an unexpected packet is received
 XBee xbee = XBee();
 XBeeResponse response = XBeeResponse();
 // create reusable response objects for responses we expect to handle 
-Rx16Response rx16 = Rx16Response();
-Rx64Response rx64 = Rx64Response();
+ZBRxResponse rx64 = ZBRxResponse();
 
 int statusLed = 52;
 int errorLed = 51;
@@ -71,18 +70,12 @@ void loop() {
     if (xbee.getResponse().isAvailable()) {
       // got something
       
-      if (xbee.getResponse().getApiId() == RX_16_RESPONSE || xbee.getResponse().getApiId() == RX_64_RESPONSE) {
+      if (xbee.getResponse().getApiId() == ZB_RX_RESPONSE) {
         // got a rx packet
         
-        if (xbee.getResponse().getApiId() == RX_16_RESPONSE) {
-                xbee.getResponse().getRx16Response(rx16);
-        	option = rx16.getOption();
-        	data = rx16.getData(0);
-        } else {
-                xbee.getResponse().getRx64Response(rx64);
-        	option = rx64.getOption();
-        	data = rx64.getData(0);
-        }
+        xbee.getResponse().getZBRxResponse(rx64);
+        option = rx64.getOption();
+        data = rx64.getData(0);
         
         // TODO check option, rssi bytes    
         flashLed(statusLed, 1, 10);

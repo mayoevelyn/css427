@@ -29,7 +29,7 @@ XBee xbee = XBee();
 
 unsigned long start = millis();
 
-// allocate two bytes for to hold a 10-bit analog reading
+
 uint8_t payload[] = { 0, 0, 0, 0 };
 
 // with Series 1 you can use either 16-bit or 64-bit addressing
@@ -38,7 +38,7 @@ uint8_t payload[] = { 0, 0, 0, 0 };
 //Tx16Request tx = Tx16Request(0x1234, payload, sizeof(payload));
 
 // 64-bit addressing: This is the SH + SL address of remote XBee
-XBeeAddress64 addr64 = XBeeAddress64(0x0013A200, 0x40F9CE00);
+XBeeAddress64 addr64 = XBeeAddress64(0x0013A200, 0x40E3CD0F);
 // unless you have MY on the receiving radio set to FFFF, this will be received as a RX16 packet
 Tx64Request tx = Tx64Request(addr64, payload, sizeof(payload));
 

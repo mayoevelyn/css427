@@ -30,8 +30,7 @@ XBee xbee = XBee();
 unsigned long start = millis();
 
 // allocate two bytes for to hold a 10-bit analog reading
-uint8_t payload[] = { 0, 0 };
-//uint8_t payload = 0;
+uint8_t payload[] = { 0, 0, 0, 0 };
 
 // with Series 1 you can use either 16-bit or 64-bit addressing
 
@@ -45,7 +44,7 @@ Tx64Request tx = Tx64Request(addr64, payload, sizeof(payload));
 
 TxStatusResponse txStatus = TxStatusResponse();
 
-char output = '0';
+int output = 0;
 
 int statusLed = 47;
 int errorLed = 53;
@@ -76,6 +75,8 @@ void loop() {
       // break down 10-bit reading into two bytes and place in payload
       payload[0] = output & 0xff;
       payload[1] = output >> 8 & 0xff;
+      payload[2] = output >> 16 & 0xff;
+      payload[3] = output >> 24 & 0xff;
       
       //payload = pin5;
       
@@ -118,13 +119,13 @@ void loop() {
 
 void setOutput()
 {
-    if (output == '0')
+    if (output == 0)
     {
-        output = '1';
+        output = 1;
     }
     else
     {
-        output = '0';
+        output = 0;
     }
 }
 

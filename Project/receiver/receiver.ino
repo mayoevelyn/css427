@@ -36,7 +36,7 @@ int errorLed = 51;
 int dataLed = 53;
 
 uint8_t option = 0;
-uint8_t data = '0';
+int data = 0;
 
 void flashLed(int pin, int times, int wait) {
     
@@ -89,7 +89,7 @@ void loop() {
         
         
         // set dataLed PWM to value of the first byte in the data
-        if (data == '0')
+        if (data == 0)
         {
             digitalWrite(dataLed, LOW);
         }

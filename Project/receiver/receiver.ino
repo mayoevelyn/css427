@@ -1,102 +1,108 @@
-/**
- * Copyright (c) 2009 Andrew Rapp. All rights reserved.
- *
- * This file is part of XBee-Arduino.
- *
- * XBee-Arduino is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * XBee-Arduino is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with XBee-Arduino.  If not, see <http://www.gnu.org/licenses/>.
- */
+// Test code for CSS 427 Final Project, based on Andrew Rapp example code.
+// John Walter
+// Thomas Dye
+// Receiver codebase for command station
 
 #include <XBee.h>
 
-/*
-This example is for Series 1 XBee (802.15.4)
-Receives either a RX16 or RX64 packet and sets a PWM value based on packet data.
-Error led is flashed if an unexpected packet is received
-*/
-
+// Initialize radio object
 XBee xbee = XBee();
+
+// Create reusable response objects for responses we expect to handle 
 XBeeResponse response = XBeeResponse();
-// create reusable response objects for responses we expect to handle 
 ZBRxResponse rx64 = ZBRxResponse();
 
-int statusLed = 52;
+// LED pin assignments
 int errorLed = 51;
+int statusLed = 52;
 int dataLed = 53;
 
+// Data from payload
 uint8_t option = 0;
 int data = 0;
 
-void flashLed(int pin, int times, int wait) {
+// Setup
+void setup()
+{
+    // Prepare diagnostic leds
+    pinMode(errorLed, OUTPUT);
+    pinMode(statusLed, OUTPUT);
+    pinMode(dataLed,  OUTPUT);
     
-    for (int i = 0; i < times; i++) {
-      digitalWrite(pin, HIGH);
-      delay(wait);
-      digitalWrite(pin, LOW);
-      
-      if (i + 1 < times) {
-        delay(wait);
-      }
-    }
+    // Prepare serial connections
+    Serial.begin(9600);
+    xbee.setSerial(Serial);
+
+    // Check LEDs
+    flashLed(errorLed, 3, 50);
+    flashLed(statusLed, 3, 50);
+    flashLed(dataLed, 3, 50);
 }
 
-void setup() {
-  pinMode(statusLed, OUTPUT);
-  pinMode(errorLed, OUTPUT);
-  pinMode(dataLed,  OUTPUT);
-  
-  // start serial
-  Serial.begin(9600);
-  xbee.setSerial(Serial);
-  
-  flashLed(statusLed, 3, 50);
-}
-
-// continuously reads packets, looking for RX16 or RX64
-void loop() {
-    
+// Loop
+void loop()
+{
+    // continuously reads packets
     xbee.readPacket();
     
-    if (xbee.getResponse().isAvailable()) {
-      // got something
-      
-      if (xbee.getResponse().getApiId() == ZB_RX_RESPONSE) {
-        // got a rx packet
+    if (xbee.getResponse().isAvailable())
+    {
+        // got something
         
-        xbee.getResponse().getZBRxResponse(rx64);
-        option = rx64.getOption();
-        data = rx64.getData(0);
-        
-        // TODO check option, rssi bytes    
-        flashLed(statusLed, 1, 10);
-        
-        
-        // set dataLed PWM to value of the first byte in the data
-        if (data == 0)
+        if (xbee.getResponse().getApiId() == ZB_RX_RESPONSE)
         {
-            digitalWrite(dataLed, LOW);
+            // got a rx packet
+            
+            xbee.getResponse().getZBRxResponse(rx64);
+            option = rx64.getOption();
+            data = rx64.getData(0);
+            
+            // flash RX indicator for each byte in payload  
+            flashLed(statusLed, 4, 25);
+
+            // process received data
+            setDataLed();
         }
         else
         {
-            digitalWrite(dataLed, HIGH);
+            // not something we were expecting
+            flashLed(errorLed, 1, 25);    
         }
-      } else {
-      	// not something we were expecting
-        flashLed(errorLed, 1, 25);    
-      }
-    } else if (xbee.getResponse().isError()) {
-      //nss.print("Error reading packet.  Error code: ");  
-      //nss.println(xbee.getResponse().getErrorCode());
-      flashLed(errorLed, 3, 100);
+    }
+    else if (xbee.getResponse().isError())
+    {
+        //nss.print("Error reading packet.  Error code: ");  
+        //nss.println(xbee.getResponse().getErrorCode());
+        flashLed(errorLed, 3, 100);
     }
 }
+
+// Flash LED
+void flashLed(int pin, int times, int wait)
+{
+    for (int i = 0; i < times; i++)
+    {
+        digitalWrite(pin, HIGH);
+        delay(wait);
+        digitalWrite(pin, LOW);
+        
+        if (i + 1 < times)
+        {
+            delay(wait);
+        }
+    }
+}
+
+// Set Data LED
+void setDataLed()
+{
+    if (data == 0)
+    {
+        digitalWrite(dataLed, LOW);
+    }
+    else
+    {
+        digitalWrite(dataLed, HIGH);
+    }
+}
+

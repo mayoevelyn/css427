@@ -31,6 +31,7 @@ void setup()
     
     // Prepare serial connections
     Serial.begin(9600);
+    Serial2.begin(9600);
     xbee.setSerial(Serial);
 
     // Check LEDs
@@ -96,13 +97,14 @@ void flashLed(int pin, int times, int wait)
 // Set Data LED
 void setDataLed()
 {
-    if (data == "hello world")
-    {
-        digitalWrite(dataLed, LOW);
-    }
-    else
-    {
-        digitalWrite(dataLed, HIGH);
-    }
+    Serial2.println(data);
+//    if (String(data) == "hello")
+//    {
+//        digitalWrite(dataLed, LOW);
+//    }
+//    else
+//    {
+//        digitalWrite(dataLed, HIGH);
+//    }
 }
 

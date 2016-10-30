@@ -29,6 +29,7 @@ void setup()
     
     // Prepare serial connections
     Serial.begin(9600);
+    Serial2.begin(9600);
     xbee.setSerial(Serial);
     
     // Allow radio to fully boot and establish connection to remote
@@ -42,12 +43,12 @@ void setup()
 // Loop
 void loop()
 {
-    strcpy(buffer, "hello world\r");
+    strcpy(buffer, "hello\r");
     //Tx64Request zbtx = Tx64Request(addr64, (uint8_t *)helloworld, strlen(helloworld));
     Tx64Request zbtx = Tx64Request(addr64, (uint8_t *)buffer, strlen(buffer));
     xbee.send(zbtx);
     delay(2000);
-    strcpy(buffer, "goodbye world\r");
+    strcpy(buffer, "goodbye\r");
     zbtx = Tx64Request(addr64, (uint8_t *)buffer, strlen(buffer));
     xbee.send(zbtx);
     delay(2000);

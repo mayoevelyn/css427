@@ -19,7 +19,7 @@ int dataLed = 53;
 
 // Data from payload
 uint8_t option = 0;
-int data = 0;
+char data[128];
 
 // Setup
 void setup()
@@ -55,7 +55,7 @@ void loop()
             
             xbee.getResponse().getZBRxResponse(rx64);
             option = rx64.getOption();
-            data = rx64.getData(0);
+            strcpy(data, rx64.getData(0));
             
             // flash RX indicator for each byte in payload  
             flashLed(statusLed, 4, 25);
@@ -96,7 +96,7 @@ void flashLed(int pin, int times, int wait)
 // Set Data LED
 void setDataLed()
 {
-    if (data == 0)
+    if (data == "hello world")
     {
         digitalWrite(dataLed, LOW);
     }

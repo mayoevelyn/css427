@@ -5,9 +5,7 @@
 
 #include <XBee.h>
 
-// Create a 4-byte payload for an integer.
-//uint8_t payload[] = { 0, 0, 0, 0 };
-char helloworld[] = "Hello World\r";
+//char helloworld[] = "Hello World\r";
 char buffer[128];
 
 // Initialize radio object
@@ -22,9 +20,6 @@ TxStatusResponse txStatus = TxStatusResponse();
 int statusLed = 47;
 int errorLed = 53;
 
-// Data for payload
-//int output = 0;
-
 // Setup
 void setup()
 {
@@ -34,9 +29,7 @@ void setup()
     
     // Prepare serial connections
     Serial.begin(9600);
-    Serial3.begin(9600);
-    //xbee.setSerial(Serial);
-    xbee.setSerial(Serial3);
+    xbee.setSerial(Serial);
     
     // Allow radio to fully boot and establish connection to remote
     delay(15000);
@@ -49,20 +42,15 @@ void setup()
 // Loop
 void loop()
 {
-    // Pack 4-byte integer into payload using offsets
-//    payload[0] = output & 0xff;
-//    payload[1] = output >> 8 & 0xff;
-//    payload[2] = output >> 16 & 0xff;
-//    payload[3] = output >> 24 & 0xff;
-
-    ZBTxRequest zbtx = ZBTxRequest(addr64, (uint8_t *)helloworld, strlen(helloworld));
+    strcpy(buffer, "hello world\r");
+    //Tx64Request zbtx = Tx64Request(addr64, (uint8_t *)helloworld, strlen(helloworld));
+    Tx64Request zbtx = Tx64Request(addr64, (uint8_t *)buffer, strlen(buffer));
     xbee.send(zbtx);
-    delay(20000);
+    delay(2000);
     strcpy(buffer, "goodbye world\r");
+    zbtx = Tx64Request(addr64, (uint8_t *)buffer, strlen(buffer));
     xbee.send(zbtx);
-    delay(20000);
-
-    Serial.println("using serial println");
+    delay(2000);
 
     // Send payload and flash activity light
     //xbee.send(tx);

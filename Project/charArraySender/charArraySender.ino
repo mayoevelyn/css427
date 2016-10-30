@@ -135,16 +135,3 @@ void packGoodbye()
     buffer[7] = '\r';
 }
 
-//// Set Output
-//void setOutput()
-//{
-//    if (output == 0)
-//    {
-//        output = 1;
-//    }
-//    else
-//    {
-//        output = 0;
-//    }
-//}
-

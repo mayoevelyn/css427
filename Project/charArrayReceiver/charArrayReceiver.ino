@@ -98,7 +98,8 @@ void flashLed(int pin, int times, int wait)
 // Set Data LED
 void setDataLed()
 {
-    Serial2.println(data);
+    //String data10 = String(data[10]);
+    Serial2.println();
     bool containsH = false;
     
     for (int i = 0; i < 128; i++)

@@ -34,9 +34,12 @@ void setup()
     xbee.setSerial(Serial);
 
     // Check LEDs
-    flashLed(errorLed, 3, 50);
-    flashLed(statusLed, 3, 50);
-    flashLed(dataLed, 3, 50);
+    for (int i = 0; i < 10; i++)
+    {
+        flashLed(errorLed, 1, 100);
+        flashLed(statusLed, 1, 100);
+        flashLed(dataLed, 1, 100);
+    }
 }
 
 // Loop
@@ -58,7 +61,7 @@ void loop()
             data = rx64.getData(0);
             
             // flash RX indicator for each byte in payload  
-            flashLed(statusLed, 4, 25);
+            //flashLed(statusLed, 4, 25);
 
             // process received data
             setDataLed();

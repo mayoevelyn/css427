@@ -19,12 +19,12 @@ int dataLed = 53;
 
 // Data from payload
 uint8_t option = 0;
-uint8_t data;
+uint8_t data = '0';
 
 // Setup
 void setup()
 {
-    initBuffer();
+    //initBuffer();
     
     // Prepare diagnostic leds
     pinMode(errorLed, OUTPUT);
@@ -76,8 +76,8 @@ void loop()
     }
     else if (xbee.getResponse().isError())
     {
-        Serial.print("Error reading packet.  Error code: ");  
-        Serial.println(xbee.getResponse().getErrorCode());
+        //Serial.print("Error reading packet.  Error code: ");  
+        //Serial.println(xbee.getResponse().getErrorCode());
         flashLed(errorLed, 3, 100);
     }
 }
@@ -101,21 +101,21 @@ void flashLed(int pin, int times, int wait)
 // Set Data LED
 void setDataLed()
 {
-    if (data == "hello")
+    if (data == 'h')
     {
         digitalWrite(dataLed, LOW);
     }
-    else if (data == "goodbye")
+    else if (data == 'g')
     {
         digitalWrite(dataLed, HIGH);
     }
 }
 
-void initBuffer()
-{
-    for (int i = 0; i < 100; i++)
-    {
-        //data[i] = '0';
-    }
-}
+//void initBuffer()
+//{
+//    for (int i = 0; i < 100; i++)
+//    {
+//        data[i] = 0;
+//    }
+//}
 

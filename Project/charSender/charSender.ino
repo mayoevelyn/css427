@@ -6,7 +6,7 @@
 #include <XBee.h>
 
 // Payload
-uint8_t payload[100];
+uint8_t payload[] = { 0, 0 };
 bool outputHello;
 
 // Initialize radio object
@@ -20,6 +20,8 @@ TxStatusResponse txStatus = TxStatusResponse();
 // LED pin assignments
 int statusLed = 47;
 int errorLed = 53;
+
+char output = '0';
 
 // Setup
 void setup()
@@ -50,7 +52,7 @@ void loop()
 {
     //initBuffer();
     
-    //pack();
+    pack();
     //Tx64Request zbtx = Tx64Request(addr64, (uint8_t *)buffer, strlen(buffer));
     xbee.send(tx);
 
@@ -136,13 +138,17 @@ void pack()
 {
     if (outputHello)
     {
-        packHello();
+        //packHello();
+        output = 'h';
     }
     else
     {
-        packGoodbye();
+        //packGoodbye();
+        output = 'g';
     }
 
+    payload[0] = output & 0xff;
+    payload[1] = output >> 8 & 0xff;
     outputHello = !outputHello;
 }
 

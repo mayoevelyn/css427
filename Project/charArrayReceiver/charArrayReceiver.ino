@@ -19,11 +19,13 @@ int dataLed = 53;
 
 // Data from payload
 uint8_t option = 0;
-char data[128];
+uint8_t data;
 
 // Setup
 void setup()
 {
+    initBuffer();
+    
     // Prepare diagnostic leds
     pinMode(errorLed, OUTPUT);
     pinMode(statusLed, OUTPUT);
@@ -31,14 +33,15 @@ void setup()
     
     // Prepare serial connections
     Serial.begin(9600);
-    delay(250);
-    Serial2.begin(9600);
     xbee.setSerial(Serial);
 
     // Check LEDs
-    flashLed(errorLed, 3, 50);
-    flashLed(statusLed, 3, 50);
-    flashLed(dataLed, 3, 50);
+    for (int i = 0; i < 10; i++)
+    {
+        flashLed(errorLed, 1, 100);
+        flashLed(statusLed, 1, 100);
+        flashLed(dataLed, 1, 100);
+    }
 }
 
 // Loop
@@ -57,10 +60,10 @@ void loop()
             
             xbee.getResponse().getZBRxResponse(rx64);
             option = rx64.getOption();
-            strcpy(data, rx64.getData(0));
+            data = rx64.getData(0);
             
             // flash RX indicator for each byte in payload  
-            flashLed(statusLed, 4, 25);
+            flashLed(statusLed, 1, 100);
 
             // process received data
             setDataLed();
@@ -73,8 +76,8 @@ void loop()
     }
     else if (xbee.getResponse().isError())
     {
-        //nss.print("Error reading packet.  Error code: ");  
-        //nss.println(xbee.getResponse().getErrorCode());
+        Serial.print("Error reading packet.  Error code: ");  
+        Serial.println(xbee.getResponse().getErrorCode());
         flashLed(errorLed, 3, 100);
     }
 }
@@ -98,27 +101,21 @@ void flashLed(int pin, int times, int wait)
 // Set Data LED
 void setDataLed()
 {
-    //String data10 = String(data[10]);
-    Serial2.println();
-    bool containsH = false;
-    
-    for (int i = 0; i < 128; i++)
-    {
-        if (data[i] == 'h')
-        {
-            containsH = true;
-        }
-    }
-    
-    if (containsH)
+    if (data == "hello")
     {
         digitalWrite(dataLed, LOW);
     }
-    else
+    else if (data == "goodbye")
     {
         digitalWrite(dataLed, HIGH);
     }
-    
-    containsH = false;
+}
+
+void initBuffer()
+{
+    for (int i = 0; i < 100; i++)
+    {
+        //data[i] = '0';
+    }
 }
 

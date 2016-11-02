@@ -6,7 +6,7 @@
 #include <XBee.h>
 
 // Payload
-uint8_t payload[] = { 0, 0 };
+uint8_t payload[90];
 bool outputHello;
 
 // Initialize radio object
@@ -21,7 +21,7 @@ TxStatusResponse txStatus = TxStatusResponse();
 int statusLed = 47;
 int errorLed = 53;
 
-char output = '0';
+//char output = '0';
 
 // Setup
 void setup()
@@ -138,17 +138,17 @@ void pack()
 {
     if (outputHello)
     {
-        //packHello();
-        output = 'h';
+        packHello();
+        //output = 'h';
     }
     else
     {
-        //packGoodbye();
-        output = 'g';
+        packGoodbye();
+        //output = 'g';
     }
 
-    payload[0] = output & 0xff;
-    payload[1] = output >> 8 & 0xff;
+    //payload[0] = output & 0xff;
+    //payload[1] = output >> 8 & 0xff;
     outputHello = !outputHello;
 }
 

@@ -19,7 +19,7 @@ int dataLed = 53;
 
 // Data from payload
 uint8_t option = 0;
-uint8_t data = '0';
+uint8_t *data;
 
 // Setup
 void setup()

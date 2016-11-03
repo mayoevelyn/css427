@@ -6,8 +6,8 @@
 #include <XBee.h>
 
 // Payload
-uint8_t payload[90];
-bool outputHello;
+char payload[90];
+bool switchMessage;
 
 // Initialize radio object
 XBee xbee = XBee();
@@ -21,12 +21,10 @@ TxStatusResponse txStatus = TxStatusResponse();
 int statusLed = 47;
 int errorLed = 53;
 
-//char output = '0';
-
 // Setup
 void setup()
 {
-    outputHello = true;
+    switchMessage = false;
     
     // Prepare diagnostic leds
     pinMode(statusLed, OUTPUT);
@@ -50,10 +48,7 @@ void setup()
 // Loop
 void loop()
 {
-    //initBuffer();
-    
     pack();
-    //Tx64Request zbtx = Tx64Request(addr64, (uint8_t *)buffer, strlen(buffer));
     xbee.send(tx);
 
     // flash TX indicator for each byte in payload
@@ -114,49 +109,21 @@ void flashLed(int pin, int times, int wait)
     }
 }
 
-void packHello()
-{
-    payload[0] = 'h' & 0xff;
-    payload[1] = 'e' & 0xff;
-    payload[2] = 'l' & 0xff;
-    payload[3] = 'l' & 0xff;
-    payload[4] = 'o' & 0xff;
-}
-
-void packGoodbye()
-{
-    payload[0] = 'g' & 0xff;
-    payload[1] = 'o' & 0xff;
-    payload[2] = 'o' & 0xff;
-    payload[3] = 'd' & 0xff;
-    payload[4] = 'b' & 0xff;
-    payload[5] = 'y' & 0xff;
-    payload[6] = 'e' & 0xff;
-}
-
 void pack()
 {
-    if (outputHello)
+    String output;
+    
+    if (switchMessage)
     {
-        packHello();
-        //output = 'h';
+        output = "hello";
+        
     }
     else
     {
-        packGoodbye();
-        //output = 'g';
+        output = "goodbye";
     }
 
-    //payload[0] = output & 0xff;
-    //payload[1] = output >> 8 & 0xff;
-    outputHello = !outputHello;
-}
-
-void initBuffer()
-{
-    for (int i = 0; i < 100; i++)
-    {
-        payload[i] = 0;
-    }
+    strcpy(payload, output.c_str());
+    switchMessage = !switchMessage;
 }
 

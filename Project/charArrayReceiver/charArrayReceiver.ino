@@ -4,9 +4,13 @@
 // Receiver codebase for command station
 
 #include <XBee.h>
+#include <SoftwareSerial.h>
 
 // Initialize radio object
 XBee xbee = XBee();
+
+// Setup device interconnect over serial
+SoftwareSerial mySerial(64, 65); // (A10 - blue)RX, (A11 - green)TX
 
 // Create reusable response objects for responses we expect to handle 
 XBeeResponse response = XBeeResponse();
@@ -19,13 +23,13 @@ int dataLed = 53;
 
 // Data from payload
 uint8_t option = 0;
-uint8_t *data;
+
+const int BUFFER_SIZE = 90;
+char data[BUFFER_SIZE];
 
 // Setup
 void setup()
 {
-    //initBuffer();
-    
     // Prepare diagnostic leds
     pinMode(errorLed, OUTPUT);
     pinMode(statusLed, OUTPUT);
@@ -35,6 +39,9 @@ void setup()
     Serial.begin(9600);
     xbee.setSerial(Serial);
 
+    // Set the data rate for the SoftwareSerial port
+    mySerial.begin(4800);
+
     // Check LEDs
     for (int i = 0; i < 10; i++)
     {
@@ -42,6 +49,7 @@ void setup()
         flashLed(statusLed, 1, 100);
         flashLed(dataLed, 1, 100);
     }
+    mySerial.println("Finished booting Arduino Mega");
 }
 
 // Loop
@@ -60,7 +68,15 @@ void loop()
             
             xbee.getResponse().getZBRxResponse(rx64);
             option = rx64.getOption();
-            data = rx64.getData(0);
+
+            // read in each byte of the incoming data
+            for (int i = 0; i < rx64.getDataLength(); i++)
+            {
+                if (i < BUFFER_SIZE)
+                {
+                    data[i] = rx64.getData(i);
+                }
+            }
             
             // flash RX indicator for each byte in payload  
             flashLed(statusLed, 1, 100);
@@ -71,13 +87,14 @@ void loop()
         else
         {
             // not something we were expecting
-            flashLed(errorLed, 1, 25);    
+            mySerial.println("Error ZB_RX_RESPONSE: format not expected");
+            flashLed(errorLed, 1, 25);
         }
     }
     else if (xbee.getResponse().isError())
     {
-        //Serial.print("Error reading packet.  Error code: ");  
-        //Serial.println(xbee.getResponse().getErrorCode());
+        mySerial.print("Error reading packet.  Error code: ");  
+        mySerial.println(xbee.getResponse().getErrorCode());
         flashLed(errorLed, 3, 100);
     }
 }
@@ -101,21 +118,16 @@ void flashLed(int pin, int times, int wait)
 // Set Data LED
 void setDataLed()
 {
-    if (data == 'h')
+    String eval = String(data);
+    mySerial.println("Received: " + eval);
+    
+    if (eval == "goodbye")
     {
         digitalWrite(dataLed, LOW);
     }
-    else if (data == 'g')
+    else if (eval == "hello")
     {
         digitalWrite(dataLed, HIGH);
     }
 }
-
-//void initBuffer()
-//{
-//    for (int i = 0; i < 100; i++)
-//    {
-//        data[i] = 0;
-//    }
-//}
 

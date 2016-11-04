@@ -87,7 +87,7 @@ void loop()
     else
     {
         // local XBee did not provide a timely TX Status Response.  Radio is not configured properly or connected
-        flashLed(errorLed, 2, 50);
+        flashLed(errorLed, 2, 100);
     }
 
     delay(1000);

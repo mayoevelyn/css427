@@ -6,7 +6,6 @@
 #include <XBee.h>
 
 // Payload
-char payload[90];
 bool switchMessage;
 
 // Initialize radio object
@@ -14,7 +13,6 @@ XBee xbee = XBee();
 
 // 64-bit addressing: This is the SH + SL address of remote XBee
 XBeeAddress64 addr64 = XBeeAddress64(0x0013A200, 0x40E3CD0F);
-Tx64Request tx = Tx64Request(addr64, payload, sizeof(payload));
 TxStatusResponse txStatus = TxStatusResponse();
 
 // LED pin assignments
@@ -48,7 +46,12 @@ void setup()
 // Loop
 void loop()
 {
-    pack();
+    String message = getMessage();
+    char payload[message.length()];
+    strcpy(payload, message.c_str());
+    
+    Tx64Request tx = Tx64Request(addr64, payload, sizeof(payload));
+
     xbee.send(tx);
 
     // flash TX indicator for each byte in payload
@@ -109,7 +112,7 @@ void flashLed(int pin, int times, int wait)
     }
 }
 
-void pack()
+String getMessage()
 {
     String output;
     
@@ -123,7 +126,7 @@ void pack()
         output = "goodbye";
     }
 
-    strcpy(payload, output.c_str());
     switchMessage = !switchMessage;
+    return output;
 }
 

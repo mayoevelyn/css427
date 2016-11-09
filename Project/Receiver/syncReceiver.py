@@ -1,5 +1,5 @@
 import serial
-from xbee import ZigBee, XBee
+from xbee import ZigBee
 
 serial_port = serial.Serial('/dev/ttyUSB0', 9600)
 

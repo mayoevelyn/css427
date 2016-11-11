@@ -82,10 +82,8 @@ void readPackets()
             }
             
             String eval = String(data);
-            mySerial.println("Received: " + eval);
+            mySerial.println("Received: " + eval);           
             
-            // Send the data back to command station
-            sendPackets(eval);
         }
         else
         {

@@ -12,11 +12,11 @@ def main():
         # Create XBee Series 2 object
         xbee = ZigBee(ser)
         
-        DEST_ADDR_LONG = "\x00\x13\xA2\x00\x40\xE3\xCD\x0F"
+        DEST_ADDR_LONG = "\x00\x13\xA2\x00\x40\xE3\xCD\x1E"
         DEST_ADDR = "\xFF\xFE"
         
         # Send packet
-        xbee.send('tx', dest_addr_long=DEST_ADDR_LONG, dest_addr=DEST_ADDR, data='goodbye')
+        xbee.send('tx', dest_addr_long=DEST_ADDR_LONG, dest_addr=DEST_ADDR, data='WHOS A GOOD BOY')
         
         # Wait for response
         response = xbee.wait_read_frame()

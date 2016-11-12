@@ -15,25 +15,22 @@ SoftwareSerial mySerial(64, 65); // (A10 - blue)RX, (A11 - green)TX
 
 ///////////////////////////////////////////////////////////////////////////////
 // Receiver globals
+
 // Create reusable response objects for responses we expect to handle 
 XBeeResponse response = XBeeResponse();
 ZBRxResponse rx64 = ZBRxResponse();
 
 // Data from payload
 uint8_t option = 0;
-
 const int BUFFER_SIZE = 90;
 char data[BUFFER_SIZE];
-// End receiver globals
-///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
 // Sender globals
+
 // 64-bit addressing: This is the SH + SL address of remote XBee
 XBeeAddress64 addr64 = XBeeAddress64(0x0013A200, 0x40E3CD0F);
 TxStatusResponse txStatus = TxStatusResponse();
-// End sender globals
-///////////////////////////////////////////////////////////////////////////////
 
 // Setup
 void setup()
@@ -51,11 +48,24 @@ void setup()
     mySerial.println("Finished booting Arduino Mega");
 }
 
+// diagnostic toggle
+bool toggle = false;
+
 // Loop
 void loop()
 {
-    sendPackets("1.1,2.2,3.3");
-    readPackets();    
+    if (toggle)
+    {
+        sendPackets("1.1,2.2,3.3");
+    }
+    else
+    {
+        sendPackets("2500,2500");
+    }
+    toggle = !toggle;
+    
+    readPackets();
+       
 }
 
 void readPackets()
@@ -72,6 +82,8 @@ void readPackets()
             xbee.getResponse().getZBRxResponse(rx64);
             option = rx64.getOption();
 
+            clearBuffer();
+            
             // read in each byte of the incoming data
             for (int i = 0; i < rx64.getDataLength(); i++)
             {
@@ -89,7 +101,8 @@ void readPackets()
         {
             // not something we were expecting
             mySerial.println("Error ZB_RX_RESPONSE: format not expected");           
-        }
+        }       
+        
     }
     else if (xbee.getResponse().isError())
     {
@@ -100,6 +113,7 @@ void readPackets()
 
 void sendPackets(String message)
 {
+    delay(5000);
     char payload[message.length()];
     strcpy(payload, message.c_str());
     
@@ -139,8 +153,14 @@ void sendPackets(String message)
     {
         // local XBee did not provide a timely TX Status Response.  Radio is not configured properly or connected
         mySerial.println("local XBee did not provide a timely TX Status Response.");
-    }
+    }    
+}
 
-    delay(1000);
+void clearBuffer()
+{
+    for (int i = 0; i < BUFFER_SIZE; i++)
+    {
+        data[i] = 0;
+    }
 }
 

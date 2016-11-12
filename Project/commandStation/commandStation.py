@@ -30,26 +30,34 @@ def main():
     while True:
         try:
             # Receive data
-            indata = xbee.wait_read_frame()            
+            indata = xbee.wait_read_frame()
 
+            # Diagnostic
+            #print(indata)
+
+            # Extract payload
             rfdata = indata['rf_data']
             
+            # Perform calculation
             result = addData(rfdata)
-            #print(addData(rfdata))
             print result
+
+            # Package result for sending
             strResult = str(result)
 
-            # Send back response# Send packet
-            #xbee.send('tx', dest_addr_long=DEST_ADDR_LONG, dest_addr=DEST_ADDR, data='good boy')
-            xbee.send('tx', dest_addr_long=DEST_ADDR_LONG, dest_addr=DEST_ADDR, data=strResult)
-            
+            # Send packet
+            xbee.send('tx', dest_addr_long=DEST_ADDR_LONG, dest_addr=DEST_ADDR, data=strResult)            
         
             # Wait for response
-            """response = xbee.wait_read_frame()
-            print response"""
-
             ack = xbee.wait_read_frame()
-            print ack
+
+            # Check deliver status in ack
+            deliverstatus = ack['deliver_status']
+
+            if deliverstatus == '\x00':                
+                print("deliver_status = \\x00")
+            else:
+                print("bad ack")
             
         except KeyboardInterrupt:
             break

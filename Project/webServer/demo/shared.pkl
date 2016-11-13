@@ -3,12 +3,20 @@ S'Honey'
 p1
 S'Badger'
 p2
-sS'Foo'
+sS'NewKey'
 p3
-S'Bar'
+S'New Key'
 p4
-sS'Shit'
+sS'Foo'
 p5
-S'Storm'
+S'Updated Bar Value'
 p6
+sS'DynamicTest'
+p7
+S'Test'
+p8
+sS'Shit'
+p9
+S'Storm'
+p10
 s.

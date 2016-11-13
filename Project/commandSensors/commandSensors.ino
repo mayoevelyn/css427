@@ -16,6 +16,10 @@ const int moisturePin = 64; // A10 on Mega2560
 #define DHTTYPE DHT11
 DHT_Unified dht(DHTPIN, DHTTYPE);
 
+// relay
+const int relayPin = 52;
+bool relayActivate = false;
+
 void setup()
 {
     Serial.begin(9600);
@@ -26,13 +30,18 @@ void setup()
     
     // initialize temp and humidity sensor
     dht.begin();
+
+    // initialize relay
+    pinMode(relayPin, OUTPUT);
 }
 
 void loop()
 {
     getLightSensorReading();
     getMoistureReading();
-    getTempHumidityReading();
+    getTempReading();
+    getHumidityReading();
+    setRelay();
 
     Serial.println();
     delay(2000);
@@ -92,7 +101,7 @@ void getMoistureReading()
     Serial.println(moisture);
 }
 
-void getTempHumidityReading()
+void getTempReading()
 {
     // Get temperature event and print its value.
     sensors_event_t event;  
@@ -107,8 +116,12 @@ void getTempHumidityReading()
         Serial.print("Temperature: ");
         Serial.println(event.temperature);
     }
-    
+}
+
+void getHumidityReading()
+{
     // Get humidity event and print its value.
+    sensors_event_t event; 
     dht.humidity().getEvent(&event);
     if (isnan(event.relative_humidity))
     {
@@ -119,5 +132,19 @@ void getTempHumidityReading()
         Serial.print("Humidity: ");
         Serial.println(event.relative_humidity);
     }
+}
+
+void setRelay()
+{
+    if (relayActivate)
+    {
+        digitalWrite(relayPin, LOW);
+    }
+    else
+    {
+        digitalWrite(relayPin, HIGH);
+    }
+
+    relayActivate = !relayActivate;
 }
 

@@ -1,0 +1,10 @@
+(dp0
+S'Honey'
+p1
+S'Badger'
+p2
+sS'Foo'
+p3
+S'Bar'
+p4
+s.

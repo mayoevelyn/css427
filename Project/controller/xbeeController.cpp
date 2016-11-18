@@ -132,6 +132,14 @@ bool xbeeController::receiveData()
         message = "Error on ackseq: " + String(ackSequence) + ", error reading packet. Error code: " + String(xbee.getResponse().getErrorCode());  
         return false;      
     }
+
+    return false;
+}
+
+// Has Message
+bool xbeeController::hasMessage()
+{
+    return message.length() != 0;
 }
 
 // Get Last Message

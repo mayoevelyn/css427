@@ -12,6 +12,7 @@ public:
     void sendData(String data);
     bool ackSentData();
     bool receiveData();
+    bool hasMessage();
     String getLastMessage();
 
 private:

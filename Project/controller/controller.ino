@@ -60,7 +60,11 @@ void loop()
     {
         toggle = !toggle;
     }
-    mySerial.println(radio.getLastMessage());
+
+    if (radio.hasMessage())
+    {
+        mySerial.println(radio.getLastMessage());
+    }
 }
 
 // Get Message

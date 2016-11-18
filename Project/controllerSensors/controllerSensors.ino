@@ -9,10 +9,10 @@ const int lightSensorAddr = 0x23; // i2c address
 byte lightSensorBuff[2];
 
 // moisture sensor
-const int moisturePin = 64; // A10 on Mega2560
+const int moisturePin = 62; // A8 on Mega2560
 
 // temp and humidity sensor
-#define DHTPIN 50 // digital pin for data out
+#define DHTPIN 53 // digital pin for data out
 #define DHTTYPE DHT11
 DHT_Unified dht(DHTPIN, DHTTYPE);
 

@@ -1,18 +1,23 @@
 #include <SoftwareSerial.h>
+#include "rtcController.h"
 #include "xbeeController.h"
-
-// Intialize xbee controller object
-xbeeController radio;
-
-// Setup device interconnect over serial
-SoftwareSerial mySerial(64, 65); // (A10 - blue)RX, (A11 - green)TX
 
 // Constants
 const int interval = 6000;
+const byte rtcAddress = 0x68;
 
 // Globals
 unsigned long previousMillis;
 bool toggle; // diagnostic toggle
+
+// Setup device interconnect over serial
+SoftwareSerial mySerial(64, 65); // (A10 - blue)RX, (A11 - green)TX
+
+// Initialize real time clock object
+rtcController rtc = rtcController(rtcAddress);
+
+// Intialize xbee controller object
+xbeeController radio;
 
 // Setup
 void setup()

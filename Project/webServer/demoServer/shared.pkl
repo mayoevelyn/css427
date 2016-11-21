@@ -1,0 +1,22 @@
+(dp0
+S'Honey'
+p1
+S'Badger'
+p2
+sS'NewKey'
+p3
+S'New Key'
+p4
+sS'Foo'
+p5
+S'Updated Bar Value'
+p6
+sS'DynamicTest'
+p7
+S'Testicles'
+p8
+sS'Shit'
+p9
+S'Storm'
+p10
+s.

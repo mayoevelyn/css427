@@ -1,10 +1,12 @@
 #include <SoftwareSerial.h>
-#include "ds3231Controller.h"
-#include "xbeeController.h"
+#include "ds3231Controller.h" // real time clock
+#include "bh1750Controller.h" // light sensor
+#include "xbeeController.h"   // radio
 
 // Constants
 const int interval = 6000;
-const byte rtcAddress = 0x68;
+const byte ds3231Address = 0x68;
+const byte bh1750Address = 0x23;
 
 // Globals
 unsigned long previousMillis;
@@ -14,7 +16,10 @@ bool toggle; // diagnostic toggle
 SoftwareSerial mySerial(64, 65); // (A10 - blue)RX, (A11 - green)TX
 
 // Initialize real time clock object
-ds3231Controller rtc = ds3231Controller(rtcAddress);
+ds3231Controller rtc = ds3231Controller(ds3231Address);
+
+// Initialize light sensor
+bh1750Controller light = bh1750Controller(bh1750Address);
 
 // Intialize xbee controller object
 xbeeController radio;

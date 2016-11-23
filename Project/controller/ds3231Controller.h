@@ -1,14 +1,14 @@
-#ifndef RTC_CONTROLLER_H
-#define RTC_CONTROLLER_H
+#ifndef DS3231_CONTROLLER_H
+#define DS3231_CONTROLLER_H
 
 #include <arduino.h>
 #include <Wire.h>
 
-class rtcController
+class ds3231Controller
 {
 public:
-    rtcController(byte address);
-    ~rtcController();
+    ds3231Controller(byte address);
+    ~ds3231Controller();
 
     void setHardwareTime(byte second, byte minute, byte hour, byte dayOfWeek, byte dayOfMonth, byte month, byte year);
     void updateTime();

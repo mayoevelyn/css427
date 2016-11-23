@@ -1,20 +1,20 @@
-#include "rtcController.h"
+#include "ds3231Controller.h"
 
 // Constructor
-rtcController::rtcController(byte address)
+ds3231Controller::ds3231Controller(byte address)
 {
     DS3231_I2C_ADDRESS = address;
     Wire.begin();
 }
 
 // Destructor
-rtcController::~rtcController()
+ds3231Controller::~ds3231Controller()
 {
     // nothing to destruct
 }
 
 // Set Hardware Time
-void rtcController::setHardwareTime(byte second, byte minute, byte hour, byte dayOfWeek, byte dayOfMonth, byte month, byte year)
+void ds3231Controller::setHardwareTime(byte second, byte minute, byte hour, byte dayOfWeek, byte dayOfMonth, byte month, byte year)
 {
     // sets time and date data to DS3231
     Wire.beginTransmission(DS3231_I2C_ADDRESS);
@@ -30,7 +30,7 @@ void rtcController::setHardwareTime(byte second, byte minute, byte hour, byte da
 }
 
 // Update Time
-void rtcController::updateTime()
+void ds3231Controller::updateTime()
 {
     Wire.beginTransmission(DS3231_I2C_ADDRESS);
     Wire.write(0); // set DS3231 register pointer to 00h
@@ -48,49 +48,49 @@ void rtcController::updateTime()
 }
 
 // Get Second
-byte rtcController::getSecond()
+byte ds3231Controller::getSecond()
 {
     return second;
 }
 
 // Get Minute
-byte rtcController::getMinute()
+byte ds3231Controller::getMinute()
 {
     return minute;
 }
 
 // Get Hour
-byte rtcController::getHour()
+byte ds3231Controller::getHour()
 {
     return hour;
 }
 
 // Get Day of Week
-byte rtcController::getDayOfWeek()
+byte ds3231Controller::getDayOfWeek()
 {
     return dayOfWeek;
 }
 
 // Get Day
-byte rtcController::getDay()
+byte ds3231Controller::getDay()
 {
     return day;
 }
 
 // Get Month
-byte rtcController::getMonth()
+byte ds3231Controller::getMonth()
 {
     return month;
 }
 
 // Get Year
-byte rtcController::getYear()
+byte ds3231Controller::getYear()
 {
     return year;
 }
 
 // Get Time Raw
-byte* rtcController::getTimeRaw()
+byte* ds3231Controller::getTimeRaw()
 {
     byte currentTime[7];
     currentTime[0] = second;
@@ -104,7 +104,7 @@ byte* rtcController::getTimeRaw()
 }
 
 // Get Time String
-String rtcController::getTimeString()
+String ds3231Controller::getTimeString()
 {
     // Format output: HH:MM:SS, Weekday MM/DD/YY   
     String output;
@@ -166,14 +166,14 @@ String rtcController::getTimeString()
 
 // Dec To BCD
 // Convert normal decimal numbers to binary coded decimal
-byte rtcController::decToBcd(byte val)
+byte ds3231Controller::decToBcd(byte val)
 {
     return ((val / 10 * 16) + (val % 10));
 }
 
 // BCD to Dec
 // Convert binary coded decimal to normal decimal numbers
-byte rtcController::bcdToDec(byte val)
+byte ds3231Controller::bcdToDec(byte val)
 {
     return ((val / 16 * 10) + (val % 16));
 }

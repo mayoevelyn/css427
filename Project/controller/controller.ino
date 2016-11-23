@@ -1,5 +1,5 @@
 #include <SoftwareSerial.h>
-#include "rtcController.h"
+#include "ds3231Controller.h"
 #include "xbeeController.h"
 
 // Constants
@@ -14,7 +14,7 @@ bool toggle; // diagnostic toggle
 SoftwareSerial mySerial(64, 65); // (A10 - blue)RX, (A11 - green)TX
 
 // Initialize real time clock object
-rtcController rtc = rtcController(rtcAddress);
+ds3231Controller rtc = ds3231Controller(rtcAddress);
 
 // Intialize xbee controller object
 xbeeController radio;

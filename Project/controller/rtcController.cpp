@@ -36,7 +36,7 @@ void rtcController::updateTime()
     Wire.write(0); // set DS3231 register pointer to 00h
     Wire.endTransmission();
     
-    Wire.requestFrom(DS3231_I2C_ADDRESS, 7);
+    Wire.requestFrom(DS3231_I2C_ADDRESS, (byte)7);
     // request seven bytes of data from DS3231 starting from register 00h
     second = bcdToDec(Wire.read() & 0x7f);
     minute = bcdToDec(Wire.read());
@@ -90,7 +90,7 @@ byte rtcController::getYear()
 }
 
 // Get Time Raw
-byte[] rtcController::getTimeRaw()
+byte* rtcController::getTimeRaw()
 {
     byte currentTime[7];
     currentTime[0] = second;

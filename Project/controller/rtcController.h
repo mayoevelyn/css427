@@ -1,7 +1,8 @@
 #ifndef RTC_CONTROLLER_H
 #define RTC_CONTROLLER_H
 
-#include "Wire.h"
+#include <arduino.h>
+#include <Wire.h>
 
 class rtcController
 {
@@ -22,7 +23,7 @@ public:
     String getTimeString();
     
 private:
-    void decToBcd(byte val);
+    byte decToBcd(byte val);
     byte bcdToDec(byte val);
     
     byte DS3231_I2C_ADDRESS;

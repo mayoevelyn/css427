@@ -20,7 +20,7 @@ bh1750Controller::~bh1750Controller()
 // Get Reading
 int bh1750Controller::getReading()
 {
-    float value = 0;
+    float value = -1;
     byte buff[2];
 
     if (readSensor(buff) == 2)

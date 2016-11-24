@@ -1,25 +1,42 @@
 #include <SoftwareSerial.h>
-#include "ds3231Controller.h" // real time clock
-#include "bh1750Controller.h" // light sensor
-#include "xbeeController.h"   // radio
+#include "ds3231Controller.h"   // real time clock
+#include "bh1750Controller.h"   // light sensor
+#include "dht11Controller.h"    // temperature and humidity
+#include "yl38Controller.h"     // moisture
+#include "srd05vdcController.h" // relay
+#include "xbeeController.h"     // radio
 
 // Constants
 const int interval = 6000;
 const byte ds3231Address = 0x68;
 const byte bh1750Address = 0x23;
+const byte srd05vdc1DataPin = 52;
+const byte dht11DataPin = 53;
+const byte yl38AnalogPin = 62;  // A8 on Mega2560
+const byte ssRX = 64;           // A10 on Mega2560
+const byte ssTX = 65;           // A11 on Mega2560
 
 // Globals
 unsigned long previousMillis;
 bool toggle; // diagnostic toggle
 
 // Setup device interconnect over serial
-SoftwareSerial mySerial(64, 65); // (A10 - blue)RX, (A11 - green)TX
+SoftwareSerial mySerial(ssRX, ssTX);
 
 // Initialize real time clock object
 ds3231Controller rtc = ds3231Controller(ds3231Address);
 
 // Initialize light sensor
 bh1750Controller light = bh1750Controller(bh1750Address);
+
+// Initialize temperature and humidity sensor
+dht11Controller thermostat = dht11Controller(dht11DataPin);
+
+// Initialize moisture sensor
+yl38Controller moisture = yl38Controller(yl38AnalogPin);
+
+// Initialize relay1
+srd05vdcController valve1 = srd05vdcController(srd05vdc1DataPin);
 
 // Intialize xbee controller object
 xbeeController radio;

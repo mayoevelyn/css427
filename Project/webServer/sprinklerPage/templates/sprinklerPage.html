@@ -21,6 +21,7 @@
       <h3>Status</h3>
       
       <p>Valve is: {{valveState["ValveState"]}}</p>
+      <button name="action" type="submit" value="valve">Toggle Valve</button>
       
       <p>Next scheduled: {{nextScheduled["Day"]}} at {{nextScheduled["Time"]}}
 
@@ -152,9 +153,13 @@
       
     </div>
  
-    <div class="input submit">
-      <input type="submit" value="Submit" />
-    </div>
+    
+    <button name="action" type="submit" value="Submit">Submit</button>
+    
+
+    
+    <button name="action" type="submit" value="SomethingElse">Something Else</button>
+    
     
     </form>
     

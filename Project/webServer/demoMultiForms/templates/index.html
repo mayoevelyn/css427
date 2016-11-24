@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head></head>
+    
+  <body>
+    <p>In index</p>
+
+    <form name="lform" method="post" action="{{ url_for('login') }}">
+      {{ lform.login_name }}
+      <input type="submit" value="Login" />
+    </form> 
+
+    <br/>   
+
+    <form name="rform" method="post" action="{{ url_for('register') }}">
+      {{ rform.register_name }}
+      <input type="submit" value="Register" />
+    </form> 
+
+  </body>
+</html>

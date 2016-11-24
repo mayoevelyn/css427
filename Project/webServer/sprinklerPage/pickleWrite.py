@@ -1,9 +1,19 @@
 import pickle
 from collections import defaultdict
 
+fp = open("formFields.pkl")
+formData = pickle.load(fp)
+
+
 currentAverages = {"Temperature":"35C", "Humidity":"10%", "Brightness":"120L", "Moisture":"2%"}
 
-valveState = {"ValveState":"Open"}
+
+if formData["ValveState"] == "Open":    
+    valveState = {"ValveState":"Open"}
+else:
+    valveState = {"ValveState":"Closed"}
+
+
 
 history = defaultdict(dict)
 

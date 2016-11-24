@@ -10,40 +10,13 @@ app.secret_key = 'A0A0818157573939'
 
 # Form data fields
 class ReusableForm(Form):
-    temperatureThreshold = TextField('Threshold:', validators=[validators.required()])
-    humidityThreshold = TextField('Threshold:', validators=[validators.required()])
-    brightnessThreshold = TextField('Threshold:', validators=[validators.required()])
-    moistureThreshold = TextField('Threshold:', validators=[validators.required()])
+    temperatureThreshold = TextField('Threshold:')
+    humidityThreshold = TextField('Threshold:')
+    brightnessThreshold = TextField('Threshold:')
+    moistureThreshold = TextField('Threshold:')
 
 @app.route("/", methods=['GET', 'POST'])
 def renderPage():    
-
-    # Form section
-    form = ReusableForm(request.form)
-
-    print form.errors
-    if request.method == 'POST':
-
-        # Collect form data from form controls
-        temperatureThreshold = request.form['temperatureThreshold']
-        humidityThreshold = request.form['humidityThreshold']
-        brightnessThreshold = request.form['brightnessThreshold']
-        moistureThreshold = request.form['moistureThreshold']        
-
-        if form.validate():
-
-            # Save form data to file
-            formFields= {}
-            formFields["TemperatureThreshold"] = temperatureThreshold
-            formFields["HumidityThreshold"] = humidityThreshold
-            formFields["BrightnessThreshold"] = brightnessThreshold
-            formFields["MoistureThreshold"] = moistureThreshold
-
-            fp = open("formFields.pkl", "w")
-            pickle.dump(formFields, fp)
-            
-        else:
-            flash('empty fields not allowed')            
 
     # External file loads 
     fp = open ("averages.pkl")
@@ -60,6 +33,48 @@ def renderPage():
 
     fp = open("sensors.pkl")
     sensors = pickle.load(fp)
+
+    # Form section
+    form = ReusableForm(request.form)
+
+    print form.errors
+    if request.method == 'POST':
+
+        formFields= {}
+
+        # Toggle valve
+        if request.form.get("action") == "valve":
+            if valveState["ValveState"] == "Open":
+                formFields["ValveState"] = "Closed"
+            else:
+                formFields["ValveState"] = "Open"
+            
+
+        # Collect form data from form controls
+        temperatureThreshold = request.form['temperatureThreshold']
+        humidityThreshold = request.form['humidityThreshold']
+        brightnessThreshold = request.form['brightnessThreshold']
+        moistureThreshold = request.form['moistureThreshold']        
+
+        
+
+        # Save form data to file
+            
+        formFields["TemperatureThreshold"] = temperatureThreshold
+        formFields["HumidityThreshold"] = humidityThreshold
+        formFields["BrightnessThreshold"] = brightnessThreshold
+        formFields["MoistureThreshold"] = moistureThreshold
+        fp = open("formFields.pkl", "w")
+        pickle.dump(formFields, fp)
+
+        if request.form.get("action") == "Submit":
+            print "Submit"
+        if request.form.get("action") == "SomethingElse":
+            print "Something Else"
+            
+                
+
+    
 
     return render_template(
         'sprinklerPage.html',

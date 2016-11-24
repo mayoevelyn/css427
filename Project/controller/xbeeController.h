@@ -7,7 +7,7 @@
 class xbeeController
 {
 public:
-    xbeeController();
+    xbeeController(int SHaddress, int SLaddress);
     ~xbeeController();
 
     void sendData(String data);

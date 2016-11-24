@@ -1,7 +1,7 @@
 #include "xbeeController.h"
 
 // Constructor
-xbeeController::xbeeController()
+xbeeController::xbeeController(int SHaddress, int SLaddress)
 {
     // Prepare serial connections
     Serial.begin(9600);
@@ -12,7 +12,7 @@ xbeeController::xbeeController()
 
     // Sender globals
     // 64-bit addressing: This is the SH + SL address of remote XBee
-    addr64 = XBeeAddress64(0x0013A200, 0x40E3CD0F);
+    addr64 = XBeeAddress64(SHaddress, SLaddress);
     txStatus = TxStatusResponse();
 
     // Receiver globals

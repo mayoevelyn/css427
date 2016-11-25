@@ -1,17 +1,19 @@
 import pickle
 from collections import defaultdict
 
-
-
-fp = open("formValveState.pkl")
+fp = open("formFields.pkl")
 formData = pickle.load(fp)
+
+
+currentAverages = {"Temperature":"35C", "Humidity":"10%", "Brightness":"120L", "Moisture":"2%"}
+
 
 if formData["ValveState"] == "Open":    
     valveState = {"ValveState":"Open"}
 else:
     valveState = {"ValveState":"Closed"}
 
-currentAverages = {"Temperature":"35C", "Humidity":"10%", "Brightness":"120L", "Moisture":"2%"}
+
 
 history = defaultdict(dict)
 
@@ -25,16 +27,16 @@ history["11/01/2016 PM"]["Irrigated"] = "SKIPPED"
 history["11/01/2016 PM"]["Reasons"] = "reason4, reason5, reason6"
 history["11/01/2016 PM"]["DailyAverages"] = "xC, x%, xL, x%"
 
-sensorData = defaultdict(dict)
+sensors = defaultdict(dict)
 
-sensorData["Temperature"]["Reading"] = 25
-sensorData["Temperature"]["Threshold"] = 20
-sensorData["Humidity"]["Reading"] = 60
-sensorData["Humidity"]["Threshold"] = 20
-sensorData["Brightness"]["Reading"] = 120
-sensorData["Brightness"]["Threshold"] = 90
-sensorData["Moisture"]["Reading"] = 10
-sensorData["Moisture"]["Threshold"] = 5
+sensors["Temperature"]["Reading"] = 25
+sensors["Temperature"]["Threshold"] = 20
+sensors["Humidity"]["Reading"] = 60
+sensors["Humidity"]["Threshold"] = 20
+sensors["Brightness"]["Reading"] = 120
+sensors["Brightness"]["Threshold"] = 90
+sensors["Moisture"]["Reading"] = 10
+sensors["Moisture"]["Threshold"] = 5
 
 
 fp = open("averages.pkl", "w")
@@ -46,5 +48,5 @@ pickle.dump(valveState, fp)
 fp = open("history.pkl", "w")
 pickle.dump(history, fp)
 
-fp = open("sensorData.pkl", "w")
-pickle.dump(sensorData, fp)
+fp = open("sensors.pkl", "w")
+pickle.dump(sensors, fp)

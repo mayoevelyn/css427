@@ -1,0 +1,40 @@
+ccollections
+defaultdict
+p0
+(c__builtin__
+dict
+p1
+tp2
+Rp3
+S'11/01/2016 PM'
+p4
+(dp5
+S'Date'
+p6
+g4
+sS'Reasons'
+p7
+S'reason4, reason5, reason6'
+p8
+sS'DailyAverages'
+p9
+S'xC, x%, xL, x%'
+p10
+sS'Irrigated'
+p11
+S'SKIPPED'
+p12
+ssS'11/01/2016 AM'
+p13
+(dp14
+g6
+g13
+sg7
+S'reason1, reason2, reason3'
+p15
+sg9
+g10
+sg11
+S'IRRIGATED'
+p16
+ss.

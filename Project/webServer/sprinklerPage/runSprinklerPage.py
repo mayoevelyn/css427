@@ -1,5 +1,5 @@
-from flask import Flask, render_template, flash, request
-from wtforms import Form, TextField, TextAreaField, validators, StringField, SubmitField
+from flask import Flask, render_template, flash, request, redirect, url_for
+from wtforms import Form, TextField, validators, SelectField, RadioField
 import pickle
 
 #  App config
@@ -8,82 +8,170 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 app.secret_key = 'A0A0818157573939'
 
-# Form data fields
-class ReusableForm(Form):
+# Form controls
+
+class ToggleForm(Form):
+    toggle = RadioField('Toggle Valve', choices=[(1, 'Open'), (0, 'Closed')], default=0)
+
+class SensorsForm(Form):
     temperatureThreshold = TextField('Threshold:')
     humidityThreshold = TextField('Threshold:')
     brightnessThreshold = TextField('Threshold:')
     moistureThreshold = TextField('Threshold:')
 
-@app.route("/", methods=['GET', 'POST'])
-def renderPage():    
+class PreferencesForm(Form):
+    sensorStartTime = SelectField('Start', choices=[(0, '12:00'), (1, '1:00'), (2, '2:00'), (3, '3:00'), (4, '4:00'), (5, '5:00'), (6, '6:00'), (7, '7:00'), (8, '8:00'), (9, '9:00'), (10, '10:00'), (11, '11:00')])
+    sensorStartAMPM = SelectField('AM/PM', choices=[(0, 'AM'), (1, 'PM')])
+    sensorEndTime = SelectField('End', choices=[(0, '12:00'), (1, '1:00'), (2, '2:00'), (3, '3:00'), (4, '4:00'), (5, '5:00'), (6, '6:00'), (7, '7:00'), (8, '8:00'), (9, '9:00'), (10, '10:00'), (11, '11:00')])
+    sensorEndAMPM = SelectField('AM/PM', choices=[(0, 'AM'), (1, 'PM')])
+    irrigationStartTime = SelectField('Schedule for', choices=[(0, '12:00'), (1, '1:00'), (2, '2:00'), (3, '3:00'), (4, '4:00'), (5, '5:00'), (6, '6:00'), (7, '7:00'), (8, '8:00'), (9, '9:00'), (10, '10:00'), (11, '11:00')])
+    irrigationStartAMPM = SelectField('AM/PM', choices=[(0, 'AM'), (1, 'PM')])
+    irrigationDuration = SelectField('Keep valve open for', choices=[(0.5, '30 minutes'), (1, '1 hour'), (1.5, '1.5 hours'), (2, '2 hours'), (2.5, '2.5 hours'), (3, '3 hours'), (3.5, '3.5 hours'), (4, '4 hours')])
+    
+# External file loads
+fp = open ("averages.pkl")
+currentAverages = pickle.load(fp)
 
-    # External file loads 
-    fp = open ("averages.pkl")
-    currentAverages = pickle.load(fp)
+fp = open("valveState.pkl")
+valveState = pickle.load(fp)
+
+fp = open("nextScheduled.pkl")
+nextScheduled = pickle.load(fp)
+
+fp = open("history.pkl")
+history = pickle.load(fp)
+
+fp = open("sensorData.pkl")
+sensorData = pickle.load(fp)
+
+@app.route("/toggleValve", methods=['GET', 'POST'])
+def toggleValve():
+    toggle_form = ToggleForm(request.form)
 
     fp = open("valveState.pkl")
-    valveState = pickle.load(fp)
+    valveState = pickle.load(fp) 
 
-    fp = open("nextScheduled.pkl")
-    nextScheduled = pickle.load(fp)
+    if request.method == 'POST':        
+        print "toggleValve function"
 
-    fp = open("history.pkl")
-    history = pickle.load(fp)
+        toggleChoice = request.form['toggle']
+        formValveState = {}
+        print toggleChoice
+        if toggleChoice == '0':
+            formValveState["ValveState"] = "Closed"
+        if toggleChoice == '1':
+            formValveState["ValveState"] = "Open"
 
-    fp = open("sensors.pkl")
-    sensors = pickle.load(fp)
+        fp = open("formValveState.pkl", "w")
+        pickle.dump(formValveState, fp)
 
-    # Form section
-    form = ReusableForm(request.form)
+    return render_template(
+        'index.html',
+        toggleForm=toggle_form,
+        sensorsForm=SensorsForm(),
+        preferencesForm=PreferencesForm(),
+        currentAverages=currentAverages,
+        valveState=valveState,
+        nextScheduled=nextScheduled,
+        history=history,
+        sensorData=sensorData
+        )
+        
 
-    print form.errors
-    if request.method == 'POST':
-
-        formFields= {}
-
-        # Toggle valve
-        if request.form.get("action") == "valve":
-            if valveState["ValveState"] == "Open":
-                formFields["ValveState"] = "Closed"
-            else:
-                formFields["ValveState"] = "Open"
-            
+@app.route("/sensors", methods=['GET', 'POST'])
+def sensors():    
+    sensors_form = SensorsForm(request.form)
+    
+    if request.method == 'POST':        
+        print "sensors function"
 
         # Collect form data from form controls
         temperatureThreshold = request.form['temperatureThreshold']
         humidityThreshold = request.form['humidityThreshold']
         brightnessThreshold = request.form['brightnessThreshold']
-        moistureThreshold = request.form['moistureThreshold']        
-
-        
+        moistureThreshold = request.form['moistureThreshold']
 
         # Save form data to file
-            
-        formFields["TemperatureThreshold"] = temperatureThreshold
-        formFields["HumidityThreshold"] = humidityThreshold
-        formFields["BrightnessThreshold"] = brightnessThreshold
-        formFields["MoistureThreshold"] = moistureThreshold
-        fp = open("formFields.pkl", "w")
-        pickle.dump(formFields, fp)
+        formSensors = {}
+        formSensors["TemperatureThreshold"] = temperatureThreshold
+        formSensors["HumidityThreshold"] = humidityThreshold
+        formSensors["BrightnessThreshold"] = brightnessThreshold
+        formSensors["MoistureThreshold"] = moistureThreshold
 
-        if request.form.get("action") == "Submit":
-            print "Submit"
-        if request.form.get("action") == "SomethingElse":
-            print "Something Else"
-            
-                
-
-    
+        fp = open("formSensors.pkl", "w")
+        pickle.dump(formSensors, fp)
+        
 
     return render_template(
-        'sprinklerPage.html',
-        form=form,
+        'index.html',
+        toggleForm=ToggleForm(),
+        sensorsForm=sensors_form,
+        preferencesForm=PreferencesForm(),
         currentAverages=currentAverages,
         valveState=valveState,
         nextScheduled=nextScheduled,
         history=history,
-        sensors=sensors)
+        sensorData=sensorData
+        )
+
+@app.route("/preferences", methods=['GET', 'POST'])
+def preferences():
+    preferences_form = PreferencesForm(request.form)
+    if request.method == 'POST':        
+        print "preferences function"
+
+        # Collect form data from form controls
+        sensorStartTime = request.form['sensorStartTime']
+        sensorStartAMPM = request.form['sensorStartAMPM']
+        sensorEndTime = request.form['sensorEndTime']
+        sensorEndAMPM = request.form['sensorEndAMPM']
+        irrigationStartTime = request.form['irrigationStartTime']
+        irrigationStartAMPM = request.form['irrigationStartAMPM']
+        irrigationDuration = request.form['irrigationDuration']
+        
+        
+        # Save form data to file
+        formPreferences = {}
+        formPreferences["SensorStartTime"] = sensorStartTime
+        formPreferences["SensorStartAMPM"] = sensorStartAMPM
+        formPreferences["SensorEndTime"] = sensorEndTime
+        formPreferences["SensorEndAMPM"] = sensorEndAMPM
+        formPreferences["IrrigationStartTime"] = irrigationStartTime
+        formPreferences["IrrigationStartAMPM"] = irrigationStartAMPM
+        formPreferences["IrrigationDuration"] = irrigationDuration
+
+        fp = open("formPreferences.pkl", "w")
+        pickle.dump(formPreferences, fp)
+        
+
+    return render_template(
+        'index.html',
+        toggleForm=ToggleForm(),
+        sensorsForm=SensorsForm(),
+        preferencesForm=preferences_form,
+        currentAverages=currentAverages,
+        valveState=valveState,
+        nextScheduled=nextScheduled,
+        history=history,
+        sensorData=sensorData
+        )
+
+
+
+@app.route("/", methods=['GET', 'POST'])
+def index():
+    return render_template(
+        'index.html',
+        sensorsForm=SensorsForm(),
+        toggleForm=ToggleForm(),
+        preferencesForm=PreferencesForm(),
+        currentAverages=currentAverages,
+        valveState=valveState,
+        nextScheduled=nextScheduled,
+        history=history,
+        sensorData=sensorData
+        )
+    
 
 if __name__ == "__main__":
     app.run('0.0.0.0')

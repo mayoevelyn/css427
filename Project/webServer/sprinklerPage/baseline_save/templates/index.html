@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sprinkler Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <style type="text/css">
+      .container {
+        max-width: 500px;
+        padding-top: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <form name="sensorsForm" action="{{ url_for('sensors') }}" method="post">    
+      <button name="action" type="submit" value="Submit">Update Sensors</button>
+    </form>
+
+    <form name="toggleForm" action="{{ url_for('toggleValve') }}" method="post">    
+      <button name="action" type="submit" value="Submit">Toggle Valve</button>
+    </form>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message[1] }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+    {% endwith %}
+
+    <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+  </body>
+</html>

@@ -1,7 +1,6 @@
 #include <SoftwareSerial.h>     // console serial output
 #include "ds3231Controller.h"   // real time clock
 #include "xbeeController.h"     // radio
-#include "srd05vdcController.h" // relay
 #include "command.h"            // command processor
 #include "codes.h"              // command definitions
 
@@ -11,16 +10,15 @@ const int XBEE_SL_ADDRESS = 0x40E3CD0F;
 const byte DS3231_ADDRESS = 0x68;
 const byte SS_RX = 64;               // A10 on Mega2560
 const byte SS_TX = 65;               // A11 on Mega2560
-const byte Z1_SRD05VDC_DATAPIN = 52;
 
 // Zones, should be defined sequentially
 const byte ZONE_1 = 1;
 
 // Globals Objects
-SoftwareSerial mySerial(SS_RX, SS_TX);                  // interconnect over serial
-xbeeController radio(XBEE_SH_ADDRESS, XBEE_SL_ADDRESS); // primary communication
-ds3231Controller rtc(DS3231_ADDRESS);                   // real time clock
-srd05vdcController z1valve(Z1_SRD05VDC_DATAPIN);        // zone 1 valve relay
+SoftwareSerial mySerial(SS_RX, SS_TX);                  // start interconnect over serial
+xbeeController radio(XBEE_SH_ADDRESS, XBEE_SL_ADDRESS); // start radio communication
+ds3231Controller rtc(DS3231_ADDRESS);                   // start real time clock
+command processor(mySerial);                            // start command processor
 
 // Global Variables
 const unsigned int SENSOR_READ_INTERVAL = 6;            // seconds
@@ -69,8 +67,6 @@ void loop()
 // Execute command code
 void execute(byte code)
 {
-    command processor(mySerial);
-
     switch (code)
     {
         case C_ACK:
@@ -89,6 +85,8 @@ void execute(byte code, byte zone)
     switch (code)
     {
         case C_VALVE_DATA:
+            sendPayload(processor.packValveData(zone));
+            break;
         case C_SENSOR_DATA:
             sendPayload(processor.packSensorData(zone));
             break;
@@ -100,26 +98,26 @@ void execute(byte code, byte zone)
 // Execute received command code
 void execute(char* payload)
 {
-    command processor(mySerial);
     byte zone;
 
     switch (payload[0])
     {
         case C_GET_VALVE_STATE:
+            execute(C_VALVE_DATA, payload[1]);
+            break;
         case C_OPEN_VALVE:
         case C_CLOSE_VALVE:
         case C_TOGGLE_VALVE:
         case C_SET_TIME:
         case C_GET_TIME:
         case C_GET_ZONE_SENSORS:
-            zone = payload[1];
-            sendPayload(processor.packSensorData(zone));
+            execute(C_SENSOR_DATA, payload[1]);
             break;
         case C_GET_ALL_SENSORS:
             // Adjust endpoint to reflect last zone
             for (byte i = ZONE_1; i <= ZONE_1; i++)
             {
-                sendPayload(processor.packSensorData(i));
+                execute(C_SENSOR_DATA, i);
             }
             break;
         case C_GET_SCHEDULE:
@@ -139,3 +137,4 @@ void sendPayload(char* payload)
         mySerial.println(radio.getLastMessage());
     }
 }
+

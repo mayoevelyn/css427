@@ -4,6 +4,7 @@
 command::command(SoftwareSerial &object)
 {
     *mySerial = object;
+    success = false;
 }
 
 // Destructor()
@@ -15,7 +16,14 @@ command::~command()
 // Get Sensor Data
 char* command::packSensorData(byte zone)
 {
+    success = false; // reset
     return packPayload(C_SENSOR_DATA, readSensors(zone));
+}
+
+char* command::packValveData(byte zone)
+{
+    success = false; // reset
+    return packPayload(C_VALVE_DATA, readValve(zone));
 }
 
 // Read Sensors
@@ -32,7 +40,8 @@ char* command::readSensors(byte zone)
             break;
         default:
             char data[0];
-            mySerial->println("getSensorData: error, invalid zone (" + String(zone) + ")");
+            mySerial->println("readSensors: error, invalid zone (" + String(zone) + ")");
+            success = false;
             return data;
     }
     
@@ -61,12 +70,52 @@ char* command::readSensors(byte zone)
     
     char data[output.length()];
     strcpy(data, output.c_str());
+    success = true;
     return data;
+}
+
+// Read Valve
+char* command::readValve(byte zone)
+{
+    bool state;
+    
+    switch (zone)
+    {
+        case 1:
+            state = z1valve.isOn();
+            success = true;
+            break;
+        default:
+            char data[0];
+            mySerial->println("readValve: error, invalid zone (" + String(zone) + ")");
+            success = false;
+            return data;
+    }
+    
+    char payload[2];
+    payload[0] = zone;
+    success = true;
+    
+    if (state)
+    {
+        // valve is on
+        return payload[1] = 1;
+    }
+    else
+    {
+        // valve is off
+        return payload[1] = 0;
+    }
 }
 
 // Pack Payload
 char* command::packPayload(byte code, char* data)
 {
+    if (!success)
+    {
+        return 0x02;
+    }
+    
     byte dataLength = sizeof(data);
 
     char payload[dataLength + 1];

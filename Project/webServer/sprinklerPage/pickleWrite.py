@@ -36,6 +36,9 @@ sensorData["Brightness"]["Threshold"] = 90
 sensorData["Moisture"]["Reading"] = 10
 sensorData["Moisture"]["Threshold"] = 5
 
+valveSeqNumber = {}
+valveSeqNumber["SeqNum"] = 0
+
 
 fp = open("averages.pkl", "w")
 pickle.dump(currentAverages, fp)
@@ -48,3 +51,6 @@ pickle.dump(history, fp)
 
 fp = open("sensorData.pkl", "w")
 pickle.dump(sensorData, fp)
+
+fp = open("formValveSeqNum.pkl", "w")
+pickle.dump(valveSeqNumber, fp)

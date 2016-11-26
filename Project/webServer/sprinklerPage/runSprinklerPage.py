@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, request, redirect, url_for
+from flask import Flask, render_template, flash, request, send_from_directory
 from wtforms import Form, TextField, validators, SelectField, RadioField
 import pickle
 
@@ -49,21 +49,37 @@ def toggleValve():
     toggle_form = ToggleForm(request.form)
 
     fp = open("valveState.pkl")
-    valveState = pickle.load(fp) 
+    valveState = pickle.load(fp)
 
+    fp = open("formValveSeqNum.pkl")
+    formValveSeqNum = pickle.load(fp)
+    
     if request.method == 'POST':        
-        print "toggleValve function"
+        print "toggleValve function"        
 
         toggleChoice = request.form['toggle']
         formValveState = {}
         print toggleChoice
+
         if toggleChoice == '0':
             formValveState["ValveState"] = "Closed"
+            
         if toggleChoice == '1':
             formValveState["ValveState"] = "Open"
 
+        valveSeqNum = formValveSeqNum["SeqNum"]
+        valveSeqNum = valveSeqNum + 1
+        if valveSeqNum == 10:
+            valveSeqNum = 0
+        
+        formValveSeqNum["SeqNum"] = valveSeqNum
+        formValveState["SeqNum"] = valveSeqNum
+
         fp = open("formValveState.pkl", "w")
         pickle.dump(formValveState, fp)
+
+        fp = open("formValveSeqNum.pkl", "w")
+        pickle.dump(formValveSeqNum, fp)
 
     return render_template(
         'index.html',

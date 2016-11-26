@@ -13,7 +13,7 @@ command::~command()
 }
 
 // Get Sensor Data
-char* command::getSensorData(byte zone)
+char* command::packSensorData(byte zone)
 {
     return packPayload(C_SENSOR_DATA, readSensors(zone));
 }
@@ -45,19 +45,20 @@ char* command::readSensors(byte zone)
     // Initialize moisture sensor
     yl38Controller moisture = yl38Controller(yl38Addr);
 
-    // Output string format:  zone,light,temp,humidity,moisture
+    // Output string format:  light,temp,humidity,moisture
+    String values = String(light.getReading());
+    values += ",";
+    values += String(thermostat.getTempReading());
+    values += ",";
+    values += String(thermostat.getHumidityReading());
+    values += ",";
+    values += String(moisture.getReading());
+
+    mySerial->println("getSensorData: " + values);
+
     String output = String(zone);
-    output += ",";
-    output += String(light.getReading());
-    output += ",";
-    output += String(thermostat.getTempReading());
-    output += ",";
-    output += String(thermostat.getHumidityReading());
-    output += ",";
-    output += String(moisture.getReading());
-
-    mySerial->println("getSensorData: " + output);
-
+    output += values;
+    
     char data[output.length()];
     strcpy(data, output.c_str());
     return data;

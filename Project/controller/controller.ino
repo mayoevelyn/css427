@@ -3,6 +3,7 @@
 #include "xbeeController.h"     // radio
 #include "srd05vdcController.h" // relay
 #include "command.h"            // command processor
+#include "codes.h"              // command definitions
 
 // Controller components
 const int XBEE_SH_ADDRESS = 0x0013A200;
@@ -12,11 +13,11 @@ const byte SS_RX = 64;               // A10 on Mega2560
 const byte SS_TX = 65;               // A11 on Mega2560
 const byte Z1_SRD05VDC_DATAPIN = 52;
 
-// Zones
+// Zones, should be defined sequentially
 const byte ZONE_1 = 1;
 
 // Globals Objects
-static SoftwareSerial mySerial(SS_RX, SS_TX);           // interconnect over serial
+SoftwareSerial mySerial(SS_RX, SS_TX);                  // interconnect over serial
 xbeeController radio(XBEE_SH_ADDRESS, XBEE_SL_ADDRESS); // primary communication
 ds3231Controller rtc(DS3231_ADDRESS);                   // real time clock
 srd05vdcController z1valve(Z1_SRD05VDC_DATAPIN);        // zone 1 valve relay
@@ -46,7 +47,7 @@ void loop()
     // Use a non-blocking delay for a periodic timed event
     if ((unsigned long)(currentMillis - previousMillis) >= SENSOR_READ_INTERVAL * 1000)
     {
-        sendSensorData(ZONE_1);
+        execute(C_SENSOR_DATA, ZONE_1);
         
         // Use the snapshot to set track time until next event
         previousMillis = currentMillis;
@@ -61,16 +62,74 @@ void loop()
     if (radio.hasData())
     {
         char* payload = radio.getData();
+        execute(payload);
     }
 }
 
-// Send Sensor Data
-void sendSensorData(byte zone)
+// Execute command code
+void execute(byte code)
 {
     command processor(mySerial);
 
-    // Pack and send sensor payload
-    char* payload = processor.getSensorData(zone);
+    switch (code)
+    {
+        case C_ACK:
+        case C_SUCCESS:
+        case C_FAILURE:
+        case C_TIME_DATA:
+            break;
+    }
+}
+
+// Execute command code for zone
+void execute(byte code, byte zone)
+{
+    command processor(mySerial);
+
+    switch (code)
+    {
+        case C_VALVE_DATA:
+        case C_SENSOR_DATA:
+            sendPayload(processor.packSensorData(zone));
+            break;
+        case C_SCHEDULE_DATA:
+            break;
+    }
+}
+
+// Execute received command code
+void execute(char* payload)
+{
+    command processor(mySerial);
+    byte zone;
+
+    switch (payload[0])
+    {
+        case C_GET_VALVE_STATE:
+        case C_OPEN_VALVE:
+        case C_CLOSE_VALVE:
+        case C_TOGGLE_VALVE:
+        case C_SET_TIME:
+        case C_GET_TIME:
+        case C_GET_ZONE_SENSORS:
+            zone = payload[1];
+            sendPayload(processor.packSensorData(zone));
+            break;
+        case C_GET_ALL_SENSORS:
+            // Adjust endpoint to reflect last zone
+            for (byte i = ZONE_1; i <= ZONE_1; i++)
+            {
+                sendPayload(processor.packSensorData(i));
+            }
+            break;
+        case C_GET_SCHEDULE:
+            break;
+    }
+}
+
+// Send Payload
+void sendPayload(char* payload)
+{
     radio.sendData(payload);
     mySerial.println(radio.getLastMessage());
 
@@ -80,4 +139,3 @@ void sendSensorData(byte zone)
         mySerial.println(radio.getLastMessage());
     }
 }
-

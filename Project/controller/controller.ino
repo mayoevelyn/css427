@@ -1,7 +1,7 @@
 #include <SoftwareSerial.h>     // console serial output
 //#include "ds3231Controller.h"   // real time clock
 #include "xbeeController.h"     // radio
-//#include "command.h"            // command processor
+#include "command.h"            // command processor
 #include "codes.h"              // command definitions
 
 // Controller components
@@ -18,7 +18,7 @@ const byte ZONE_1 = 1;
 SoftwareSerial mySerial(SS_RX, SS_TX);                  // start interconnect over serial
 xbeeController radio;                                   // start radio communication
 //ds3231Controller rtc(DS3231_ADDRESS);                   // start real time clock
-//command processor(&mySerial);                           // start command processor
+command processor(&mySerial);                           // start command processor
 
 // Global Variables
 const unsigned int SENSOR_READ_INTERVAL = 6;            // seconds
@@ -50,10 +50,8 @@ void loop()
     // Use a non-blocking delay for a periodic timed event
     if ((unsigned long)(currentMillis - previousMillis) >= SENSOR_READ_INTERVAL * 1000)
     {
-        mySerial.println("debug: inside loop");
-        //execute(C_SENSOR_DATA, ZONE_1);
-        String test = "testing";
-        sendPayload(test);
+        //mySerial.println("debug: inside loop");
+        execute(C_SENSOR_DATA, ZONE_1);
         
         // Use the snapshot to set track time until next event
         previousMillis = currentMillis;
@@ -72,73 +70,73 @@ void loop()
 //    }
 }
 
-//// Execute command code
-//void execute(byte code)
-//{
-//    switch (code)
-//    {
-//        case C_ACK:
-//        case C_SUCCESS:
-//        case C_FAILURE:
-//        case C_TIME_DATA:
-//            break;
-//    }
-//}
+// Execute command code
+void execute(byte code)
+{
+    switch (code)
+    {
+        case C_ACK:
+        case C_SUCCESS:
+        case C_FAILURE:
+        case C_TIME_DATA:
+            break;
+    }
+}
 
-//// Execute command code for zone
-//void execute(byte code, byte zone)
-//{
-//    switch (code)
-//    {
-//        case C_VALVE_DATA:
-//            //sendPayload(processor.packValveData(zone));
-//            break;
-//        case C_SENSOR_DATA:
-//            mySerial.println("begin sendPayload");
-//            sendPayload(processor.packSensorData(zone));
-//            mySerial.println("end sendPayload");
-//            break;
-//        case C_SCHEDULE_DATA:
-//            break;
-//    }
-//}
+// Execute command code for zone
+void execute(byte code, byte zone)
+{
+    switch (code)
+    {
+        case C_VALVE_DATA:
+            //sendPayload(processor.packValveData(zone));
+            break;
+        case C_SENSOR_DATA:
+            //mySerial.println("begin sendPayload");
+            sendPayload(processor.packSensorData(zone));
+            //mySerial.println("end sendPayload");
+            break;
+        case C_SCHEDULE_DATA:
+            break;
+    }
+}
 
-//// Execute received command code
-//void execute(char* payload)
-//{
-//    byte zone;
-//
-//    switch (payload[0])
-//    {
-//        case C_GET_VALVE_STATE:
-//            //execute(C_VALVE_DATA, payload[1]);
-//            break;
-//        case C_OPEN_VALVE:
-//        case C_CLOSE_VALVE:
-//        case C_TOGGLE_VALVE:
-//        case C_SET_TIME:
-//        case C_GET_TIME:
-//        case C_GET_ZONE_SENSORS:
-//            execute(C_SENSOR_DATA, payload[1]);
-//            break;
-//        case C_GET_ALL_SENSORS:
-////            // Adjust endpoint to reflect last zone
-////            for (byte i = ZONE_1; i <= ZONE_1; i++)
-////            {
-////                execute(C_SENSOR_DATA, i);
-////            }
-//            break;
-//        case C_GET_SCHEDULE:
-//            break;
-//    }
-//}
+// Execute received command code
+void execute(char* payload)
+{
+    byte zone;
+
+    switch (payload[0])
+    {
+        case C_GET_VALVE_STATE:
+            //execute(C_VALVE_DATA, payload[1]);
+            break;
+        case C_OPEN_VALVE:
+        case C_CLOSE_VALVE:
+        case C_TOGGLE_VALVE:
+        case C_SET_TIME:
+        case C_GET_TIME:
+        case C_GET_ZONE_SENSORS:
+            //execute(C_SENSOR_DATA, payload[1]);
+            break;
+        case C_GET_ALL_SENSORS:
+//            // Adjust endpoint to reflect last zone
+//            for (byte i = ZONE_1; i <= ZONE_1; i++)
+//            {
+//                execute(C_SENSOR_DATA, i);
+//            }
+            break;
+        case C_GET_SCHEDULE:
+            break;
+    }
+}
 
 // Send Payload
 void sendPayload(String data)
 {
-    mySerial.println("debug: in sendPayload");
+    //mySerial.println("debug: in sendPayload");
     radio.sendData(data);
-    mySerial.println("debug: finished sending");
+    //mySerial.println("debug: finished sending");
     mySerial.println(radio.getLastMessage());
 
     // Block on ackSentData.  If errors occur, display error.

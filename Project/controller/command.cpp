@@ -14,10 +14,10 @@ command::~command()
 }
 
 // Get Sensor Data
-char* command::packSensorData(byte zone)
+String command::packSensorData(byte zone)
 {
     //mySerial->println("debug: in packSensorData");
-    success = false; // reset
+    success = false; // reset before returning
     return packPayload(C_SENSOR_DATA, readSensors(zone));
 }
 
@@ -28,7 +28,7 @@ char* command::packSensorData(byte zone)
 //}
 
 // Read Sensors
-char* command::readSensors(byte zone)
+String command::readSensors(byte zone)
 {
     //mySerial->println("debug: in readSensors");
     byte bh1750Addr, dht11Addr, yl38Addr;
@@ -57,22 +57,16 @@ char* command::readSensors(byte zone)
     yl38Controller moisture = yl38Controller(yl38Addr);
      
     // Output string format:  light,temp,humidity,moisture
-    String values = String((int)zone);
-    values += String(light.getReading());
-    values += ",";
-    values += String(thermostat.getTempReading());
-    values += ",";
-    values += String(thermostat.getHumidityReading());
-    values += ",";
+    String values = String((int)zone) + ",";
+    values += String(light.getReading()) + ",";
+    values += String(thermostat.getTempReading()) + ",";
+    values += String(thermostat.getHumidityReading()) + ",";
     values += String(moisture.getReading());
 
-    mySerial->println("readSensors: " + values.substring(1));
-    
-    char data[values.length()];
-    strcpy(data, values.c_str());
+    mySerial->println("readSensors: " + values);
     success = true;
     //mySerial->println("leaving readSensors, data size: " + String(sizeof(data)));
-    return data;
+    return values;
 }
 
 //// Read Valve
@@ -110,22 +104,15 @@ char* command::readSensors(byte zone)
 //}
 
 // Pack Payload
-char* command::packPayload(byte code, char* data)
+String command::packPayload(byte code, String data)
 {
     //mySerial->println("debug: in packPayload");
     if (!success)
     {
-        return 0x02;
+        return String(C_FAILURE);
     }
-    byte dataLength = sizeof(data);
 
-    char payload[dataLength + 1];
-
-    payload[0] = code;
-    for (int i = 0; i < dataLength; i++)
-    {
-        payload[i + 1] = data[i];
-    }
+    String payload = String(code) + "," + data;
 
     return payload;
 }

@@ -15,7 +15,7 @@ public:
     command(SoftwareSerial *object);
     ~command();
 
-    char* packSensorData(byte zone);
+    String packSensorData(byte zone);
     //char* packValveData(byte zone);
     
 private:
@@ -28,9 +28,9 @@ private:
     SoftwareSerial *mySerial;
     //srd05vdcController z1valve = srd05vdcController(Z1_SRD05VDC_DATAPIN);        // zone 1 valve relay
     
-    char* readSensors(byte zone);
+    String readSensors(byte zone);
     //char* readValve(byte zone);
-    char* packPayload(byte command, char* data);
+    String packPayload(byte command, String data);
 
     bool success;
 };

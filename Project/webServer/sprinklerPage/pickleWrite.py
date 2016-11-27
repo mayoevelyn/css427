@@ -3,10 +3,10 @@ from collections import defaultdict
 
 
 
-fp = open("formValveState.pkl")
-formData = pickle.load(fp)
+fp = open("formData/formValveState.pkl")
+formValveState = pickle.load(fp)
 
-if formData["ValveState"] == "Open":    
+if formValveState["ValveState"] == "Open":    
     valveState = {"ValveState":"Open"}
 else:
     valveState = {"ValveState":"Closed"}
@@ -36,21 +36,40 @@ sensorData["Brightness"]["Threshold"] = 90
 sensorData["Moisture"]["Reading"] = 10
 sensorData["Moisture"]["Threshold"] = 5
 
-valveSeqNumber = {}
-valveSeqNumber["SeqNum"] = 0
 
 
-fp = open("averages.pkl", "w")
+
+fp = open("cmdStationData/averages.pkl", "w")
 pickle.dump(currentAverages, fp)
 
-fp = open("valveState.pkl", "w")
+fp = open("cmdStationData/valveState.pkl", "w")
 pickle.dump(valveState, fp)
 
-fp = open("history.pkl", "w")
+fp = open("cmdStationData/history.pkl", "w")
 pickle.dump(history, fp)
 
-fp = open("sensorData.pkl", "w")
+fp = open("cmdStationData/sensorData.pkl", "w")
 pickle.dump(sensorData, fp)
 
-fp = open("formValveSeqNum.pkl", "w")
-pickle.dump(valveSeqNumber, fp)
+
+###########################
+# OMIT FROM PRODUCTION CODE
+###########################
+
+valveSeqNum = {}
+valveSeqNum["SeqNum"] = 0
+
+sensorsSeqNum = {}
+sensorsSeqNum["SeqNum"] = 0
+
+preferencesSeqNum = {}
+preferencesSeqNum["SeqNum"] = 0
+
+fp = open("sequenceNumbers/formValveSeqNum.pkl", "w")
+pickle.dump(valveSeqNum, fp)
+
+fp = open("sequenceNumbers/formSensorsSeqNum.pkl", "w")
+pickle.dump(sensorsSeqNum, fp)
+
+fp = open("sequenceNumbers/formPreferencesSeqNum.pkl", "w")
+pickle.dump(preferencesSeqNum, fp)

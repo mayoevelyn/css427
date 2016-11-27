@@ -29,29 +29,29 @@ class PreferencesForm(Form):
     irrigationDuration = SelectField('Keep valve open for', choices=[(0.5, '30 minutes'), (1, '1 hour'), (1.5, '1.5 hours'), (2, '2 hours'), (2.5, '2.5 hours'), (3, '3 hours'), (3.5, '3.5 hours'), (4, '4 hours')])
     
 # External file loads
-fp = open ("averages.pkl")
+fp = open ("cmdStationData/averages.pkl")
 currentAverages = pickle.load(fp)
 
-fp = open("valveState.pkl")
+fp = open("cmdStationData/valveState.pkl")
 valveState = pickle.load(fp)
 
-fp = open("nextScheduled.pkl")
+fp = open("cmdStationData/nextScheduled.pkl")
 nextScheduled = pickle.load(fp)
 
-fp = open("history.pkl")
+fp = open("cmdStationData/history.pkl")
 history = pickle.load(fp)
 
-fp = open("sensorData.pkl")
+fp = open("cmdStationData/sensorData.pkl")
 sensorData = pickle.load(fp)
 
 @app.route("/toggleValve", methods=['GET', 'POST'])
 def toggleValve():
     toggle_form = ToggleForm(request.form)
 
-    fp = open("valveState.pkl")
+    fp = open("cmdStationData/valveState.pkl")
     valveState = pickle.load(fp)
 
-    fp = open("formValveSeqNum.pkl")
+    fp = open("sequenceNumbers/formValveSeqNum.pkl")
     formValveSeqNum = pickle.load(fp)
     
     if request.method == 'POST':        
@@ -75,10 +75,10 @@ def toggleValve():
         formValveSeqNum["SeqNum"] = valveSeqNum
         formValveState["SeqNum"] = valveSeqNum
 
-        fp = open("formValveState.pkl", "w")
+        fp = open("formData/formValveState.pkl", "w")
         pickle.dump(formValveState, fp)
 
-        fp = open("formValveSeqNum.pkl", "w")
+        fp = open("sequenceNumbers/formValveSeqNum.pkl", "w")
         pickle.dump(formValveSeqNum, fp)
 
     return render_template(
@@ -114,7 +114,7 @@ def sensors():
         formSensors["BrightnessThreshold"] = brightnessThreshold
         formSensors["MoistureThreshold"] = moistureThreshold
 
-        fp = open("formSensors.pkl", "w")
+        fp = open("formData/formSensors.pkl", "w")
         pickle.dump(formSensors, fp)
         
 
@@ -156,7 +156,7 @@ def preferences():
         formPreferences["IrrigationStartAMPM"] = irrigationStartAMPM
         formPreferences["IrrigationDuration"] = irrigationDuration
 
-        fp = open("formPreferences.pkl", "w")
+        fp = open("formData/formPreferences.pkl", "w")
         pickle.dump(formPreferences, fp)
         
 

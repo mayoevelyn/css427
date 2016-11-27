@@ -100,13 +100,16 @@ void execute(byte code, byte zone)
     switch (code)
     {
         case C_GET_VALVE_STATE:
-            //execute(C_VALVE_DATA, payload[1]);
+            sendPayload(processor.packValveData(zone));
             break;
         case C_OPEN_VALVE:
+            sendPayload(processor.packOpenValve(zone));
             break;
         case C_CLOSE_VALVE:
+            sendPayload(processor.packCloseValve(zone));
             break;
         case C_TOGGLE_VALVE:
+            sendPayload(processor.packToggleValve(zone));
             break;
         case C_GET_ZONE_SENSORS:
             sendPayload(processor.packSensorData(zone));
@@ -126,12 +129,15 @@ void execute(byte code, byte zone)
 // Execute received command code
 void execute(String payload, byte payloadSize)
 {
+//    byte code;
 //    byte zone;
 //
 //    switch (payload[0])
 //    {
 //        case C_SET_TIME:
-//            break; 
+//            break;
+//        case C_SCHEDULE_DATA:
+//            break;
 //    }
 }
 

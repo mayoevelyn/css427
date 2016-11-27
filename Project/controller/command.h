@@ -16,21 +16,28 @@ public:
     ~command();
 
     String packSensorData(byte zone);
-    //char* packValveData(byte zone);
+    String packValveData(byte zone);
+    String packOpenValve(byte zone);
+    String packCloseValve(byte zone);
+    String packToggleValve(byte zone);
     
 private:
     // Controller sensors
     const byte Z1_BH1750_ADDRESS = 0x23;
-    //const byte Z1_SRD05VDC_DATAPIN = 52;
+    const byte Z1_SRD05VDC_DATAPIN = 52;
     const byte Z1_DHT11_DATAPIN = 53;
     const byte Z1_YL38_ANALOGPIN = 62;    // A8 on Mega2560
 
     SoftwareSerial *mySerial;
-    //srd05vdcController z1valve = srd05vdcController(Z1_SRD05VDC_DATAPIN);        // zone 1 valve relay
+    srd05vdcController z1valve = srd05vdcController(Z1_SRD05VDC_DATAPIN);        // zone 1 valve relay
     
     String readSensors(byte zone);
-    //char* readValve(byte zone);
-    String packPayload(byte command, String data);
+    String readValve(byte zone);
+    void openValve(byte zone);
+    void closeValve(byte zone);
+    void toggleValve(byte zone);
+    String packPayload(byte code);
+    String packPayload(byte code, String data);
 
     bool success;
 };

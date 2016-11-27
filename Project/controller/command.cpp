@@ -13,18 +13,38 @@ command::~command()
     // nothing to destruct
 }
 
-// Get Sensor Data
+// Pack Sensor Data
 String command::packSensorData(byte zone)
 {
-    success = false; // reset before returning
     return packPayload(C_SENSOR_DATA, readSensors(zone));
 }
 
-//char* command::packValveData(byte zone)
-//{
-//    success = false; // reset
-//    return packPayload(C_VALVE_DATA, readValve(zone));
-//}
+// Pack Valve Data
+String command::packValveData(byte zone)
+{
+    return packPayload(C_VALVE_DATA, readValve(zone));
+}
+
+// Pack Open Valve
+String command::packOpenValve(byte zone)
+{
+    openValve(zone);
+    return packPayload(C_SUCCESS);
+}
+
+// Pack Close Valve
+String command::packCloseValve(byte zone)
+{
+    closeValve(zone);
+    return packPayload(C_SUCCESS);
+}
+
+// Pack Toggle Valve
+String command::packToggleValve(byte zone)
+{
+    toggleValve(zone);
+    return packPayload(C_SUCCESS);
+}
 
 // Read Sensors
 String command::readSensors(byte zone)
@@ -39,10 +59,9 @@ String command::readSensors(byte zone)
             yl38Addr = Z1_YL38_ANALOGPIN;
             break;
         default:
-            char data[0];
             mySerial->println("readSensors: error, invalid zone (" + String(zone) + ")");
             success = false;
-            return data;
+            return "";
     }
       
     // Initialize light sensor
@@ -66,39 +85,104 @@ String command::readSensors(byte zone)
     return values;
 }
 
-//// Read Valve
-//char* command::readValve(byte zone)
-//{
-//    bool state;
-//    
-//    switch (zone)
-//    {
-//        case 1:
-//            state = z1valve.isOn();
-//            success = true;
-//            break;
-//        default:
-//            char data[0];
-//            //mySerial->println("readValve: error, invalid zone (" + String(zone) + ")");
-//            success = false;
-//            return data;
-//    }
-//    
-//    char payload[2];
-//    payload[0] = zone;
-//    success = true;
-//    
-//    if (state)
-//    {
-//        // valve is on
-//        return payload[1] = 1;
-//    }
-//    else
-//    {
-//        // valve is off
-//        return payload[1] = 0;
-//    }
-//}
+// Read Valve
+String command::readValve(byte zone)
+{
+    bool state;
+    
+    switch (zone)
+    {
+        case 1:
+            state = z1valve.isOn();
+            success = true;
+            break;
+        default:
+            mySerial->println("readValve: error, invalid zone (" + String(zone) + ")");
+            success = false;
+            return "";
+    }
+    
+    String values = String((int)zone) + ",";
+    
+    if (state)
+    {
+        // valve is on
+        values += "1";
+    }
+    else
+    {
+        // valve is off
+        values += "0";
+    }
+
+    return values;
+}
+
+// Open Valve
+void command::openValve(byte zone)
+{
+    switch (zone)
+    {
+        case 1:
+            z1valve.setOn();
+            success = true;
+            break;
+        default:
+            mySerial->println("readValve: error, invalid zone (" + String(zone) + ")");
+            success = false;
+            return "";
+    }
+}
+
+// Close Valve
+void command::closeValve(byte zone)
+{
+    switch (zone)
+    {
+        case 1:
+            z1valve.setOff();
+            success = true;
+            break;
+        default:
+            mySerial->println("readValve: error, invalid zone (" + String(zone) + ")");
+            success = false;
+            return "";
+    }
+}
+
+// Toggle Valve
+void command::toggleValve(byte zone)
+{
+    switch (zone)
+    {
+        case 1:
+            if (z1valve.isOn())
+            {
+                z1valve.setOff();
+            }
+            else
+            {
+                z1valve.setOn();
+            }
+            success = true;
+            break;
+        default:
+            mySerial->println("readValve: error, invalid zone (" + String(zone) + ")");
+            success = false;
+            return "";
+    }
+}
+
+// Pack Payload
+String command::packPayload(byte code)
+{
+    if (!success)
+    {
+        return String(C_FAILURE);
+    }
+
+    return String(code);
+}
 
 // Pack Payload
 String command::packPayload(byte code, String data)

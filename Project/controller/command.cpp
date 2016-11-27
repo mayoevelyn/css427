@@ -46,6 +46,30 @@ String command::packToggleValve(byte zone)
     return packPayload(C_SUCCESS);
 }
 
+// Pack Payload
+String command::packPayload(byte code)
+{
+    if (!success)
+    {
+        return String(C_FAILURE);
+    }
+
+    return String(code);
+}
+
+// Pack Payload
+String command::packPayload(byte code, String data)
+{
+    if (!success)
+    {
+        return String(C_FAILURE);
+    }
+
+    String payload = String(code) + "," + data;
+
+    return payload;
+}
+
 // Read Sensors
 String command::readSensors(byte zone)
 {
@@ -171,28 +195,4 @@ void command::toggleValve(byte zone)
             success = false;
             return "";
     }
-}
-
-// Pack Payload
-String command::packPayload(byte code)
-{
-    if (!success)
-    {
-        return String(C_FAILURE);
-    }
-
-    return String(code);
-}
-
-// Pack Payload
-String command::packPayload(byte code, String data)
-{
-    if (!success)
-    {
-        return String(C_FAILURE);
-    }
-
-    String payload = String(code) + "," + data;
-
-    return payload;
 }

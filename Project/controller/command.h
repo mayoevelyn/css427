@@ -30,14 +30,14 @@ private:
 
     SoftwareSerial *mySerial;
     srd05vdcController z1valve = srd05vdcController(Z1_SRD05VDC_DATAPIN);        // zone 1 valve relay
-    
+
+    String packPayload(byte code);
+    String packPayload(byte code, String data);
     String readSensors(byte zone);
     String readValve(byte zone);
     void openValve(byte zone);
     void closeValve(byte zone);
     void toggleValve(byte zone);
-    String packPayload(byte code);
-    String packPayload(byte code, String data);
 
     bool success;
 };

@@ -91,6 +91,16 @@ void execute(byte code)
     {
         case C_GET_TIME:
             break;
+        case C_GET_ALL_SENSORS:
+            // Adjust endpoint to reflect last zone
+            for (byte i = ZONE_1; i <= ZONE_1; i++)
+            {
+                sendPayload(processor.packSensorData(i));
+            }
+            break;
+        default:
+            sendPayload(String(C_ACK));
+            break;
     }
 }
 
@@ -102,26 +112,20 @@ void execute(byte code, byte zone)
         case C_GET_VALVE_STATE:
             sendPayload(processor.packValveData(zone));
             break;
-        case C_OPEN_VALVE:
+        case C_SET_OPEN_VALVE:
             sendPayload(processor.packOpenValve(zone));
             break;
-        case C_CLOSE_VALVE:
+        case C_SET_CLOSE_VALVE:
             sendPayload(processor.packCloseValve(zone));
             break;
-        case C_TOGGLE_VALVE:
+        case C_SET_TOGGLE_VALVE:
             sendPayload(processor.packToggleValve(zone));
             break;
         case C_GET_ZONE_SENSORS:
             sendPayload(processor.packSensorData(zone));
             break;
-        case C_GET_ALL_SENSORS:
-            // Adjust endpoint to reflect last zone
-            for (byte i = ZONE_1; i <= ZONE_1; i++)
-            {
-                sendPayload(processor.packSensorData(i));
-            }
-            break;
-        case C_GET_SCHEDULE:
+        default:
+            sendPayload(String(C_ACK));
             break;
     }
 }
@@ -136,7 +140,7 @@ void execute(String payload, byte payloadSize)
 //    {
 //        case C_SET_TIME:
 //            break;
-//        case C_SCHEDULE_DATA:
+//        case C_SET_SCHEDULE:
 //            break;
 //    }
 }

@@ -3,6 +3,7 @@
 #include "xbeeController.h"     // radio
 #include "command.h"            // command processor
 #include "codes.h"              // command definitions
+#include "tokenizer.h"          // string tokenizer
 
 // Controller components
 const long XBEE_SH_ADDRESS = 0x0013A200;
@@ -50,8 +51,7 @@ void loop()
     // Use a non-blocking delay for a periodic timed event
     if ((unsigned long)(currentMillis - previousMillis) >= SENSOR_READ_INTERVAL * 1000)
     {
-        //mySerial.println("debug: inside loop");
-        execute(C_SENSOR_DATA, ZONE_1);
+        //execute(C_SENSOR_DATA, ZONE_1);
         
         // Use the snapshot to set track time until next event
         previousMillis = currentMillis;
@@ -60,20 +60,28 @@ void loop()
     String payload = radio.receiveData();
     if (payload != 0)
     {
-        mySerial.println(payload);
+        tokenizer token;
+
+        byte payloadSize = token.getTokenCount(payload, ',');
+        byte code;
+        byte zone;
+        
+        switch (payloadSize)
+        {
+            case 1:
+                code = (byte)token.getToken(payload, ',', 0).toInt();
+                execute(code);
+                break;
+            case 2:
+                code = (byte)token.getToken(payload, ',', 0).toInt();
+                zone = (byte)token.getToken(payload, ',', 1).toInt();
+                execute(code, zone);
+                break;
+            default:
+                execute(payload, payloadSize);
+                break;
+        }
     }
-
-//    // Poll for incoming transmissions.
-//    if (radio.receiveData())
-//    {
-//        mySerial.println(radio.getLastMessage());
-//    }
-
-//    if (radio.hasData())
-//    {
-//        char* payload = radio.getData();
-//        //execute(payload);
-//    }
 }
 
 // Execute command code
@@ -81,10 +89,7 @@ void execute(byte code)
 {
     switch (code)
     {
-        case C_ACK:
-        case C_SUCCESS:
-        case C_FAILURE:
-        case C_TIME_DATA:
+        case C_GET_TIME:
             break;
     }
 }
@@ -94,55 +99,46 @@ void execute(byte code, byte zone)
 {
     switch (code)
     {
-        case C_VALVE_DATA:
-            //sendPayload(processor.packValveData(zone));
-            break;
-        case C_SENSOR_DATA:
-            //mySerial.println("begin sendPayload");
-            sendPayload(processor.packSensorData(zone));
-            //mySerial.println("end sendPayload");
-            break;
-        case C_SCHEDULE_DATA:
-            break;
-    }
-}
-
-// Execute received command code
-void execute(char* payload)
-{
-    byte zone;
-
-    switch (payload[0])
-    {
         case C_GET_VALVE_STATE:
             //execute(C_VALVE_DATA, payload[1]);
             break;
         case C_OPEN_VALVE:
+            break;
         case C_CLOSE_VALVE:
+            break;
         case C_TOGGLE_VALVE:
-        case C_SET_TIME:
-        case C_GET_TIME:
+            break;
         case C_GET_ZONE_SENSORS:
-            //execute(C_SENSOR_DATA, payload[1]);
+            sendPayload(processor.packSensorData(zone));
             break;
         case C_GET_ALL_SENSORS:
-//            // Adjust endpoint to reflect last zone
-//            for (byte i = ZONE_1; i <= ZONE_1; i++)
-//            {
-//                execute(C_SENSOR_DATA, i);
-//            }
+            // Adjust endpoint to reflect last zone
+            for (byte i = ZONE_1; i <= ZONE_1; i++)
+            {
+                sendPayload(processor.packSensorData(i));
+            }
             break;
         case C_GET_SCHEDULE:
             break;
     }
 }
 
+// Execute received command code
+void execute(String payload, byte payloadSize)
+{
+//    byte zone;
+//
+//    switch (payload[0])
+//    {
+//        case C_SET_TIME:
+//            break; 
+//    }
+}
+
 // Send Payload
 void sendPayload(String data)
 {
-    //mySerial.println("debug: in sendPayload");
     radio.sendData(data);
-    //mySerial.println("debug: finished sending");
 
     // Block on ackSentData.  If errors occur, display error.
     radio.ackSentData(data);

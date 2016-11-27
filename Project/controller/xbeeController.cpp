@@ -161,19 +161,3 @@ String xbeeController::receiveData()
     return "";
 }
 
-//// Get Data
-//char* xbeeController::getData()
-//{
-////    byte dataLength = sizeof(receiveBuffer);
-////
-////    char data[dataLength];
-////    for (int i = 0; i < dataLength; i++)
-////    {
-////        data[i] = receiveBuffer[i];
-////    }
-////
-////    clearReceiveBuffer();
-//    char data[0];
-//    return data;
-//}
-

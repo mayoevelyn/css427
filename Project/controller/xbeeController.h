@@ -14,8 +14,6 @@ public:
     void sendData(String payload);
     bool ackSentData(String payload);
     String receiveData();
-    //bool hasMessage();
-    //char* getData();
 
 private:
     bool retransmit(String payload);

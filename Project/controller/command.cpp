@@ -16,7 +16,6 @@ command::~command()
 // Get Sensor Data
 String command::packSensorData(byte zone)
 {
-    //mySerial->println("debug: in packSensorData");
     success = false; // reset before returning
     return packPayload(C_SENSOR_DATA, readSensors(zone));
 }
@@ -30,7 +29,6 @@ String command::packSensorData(byte zone)
 // Read Sensors
 String command::readSensors(byte zone)
 {
-    //mySerial->println("debug: in readSensors");
     byte bh1750Addr, dht11Addr, yl38Addr;
 
     switch (zone)
@@ -65,7 +63,6 @@ String command::readSensors(byte zone)
 
     mySerial->println("readSensors: " + values);
     success = true;
-    //mySerial->println("leaving readSensors, data size: " + String(sizeof(data)));
     return values;
 }
 
@@ -106,7 +103,6 @@ String command::readSensors(byte zone)
 // Pack Payload
 String command::packPayload(byte code, String data)
 {
-    //mySerial->println("debug: in packPayload");
     if (!success)
     {
         return String(C_FAILURE);

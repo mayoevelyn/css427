@@ -7,11 +7,12 @@ xbeeController::xbeeController()
 }
 
 // Constructor
-xbeeController::xbeeController(long SHaddress, long SLaddress)
+xbeeController::xbeeController(long SHaddress, long SLaddress, SoftwareSerial *object)
 {
     // Prepare serial connections
     Serial.begin(9600);
     xbee.setSerial(Serial);
+    mySerial = object;
 
     // Initialize radio object
     xbee = XBee();
@@ -47,7 +48,7 @@ void xbeeController::sendData(String data)
     Tx64Request tx = Tx64Request(addr64, payload, sizeof(payload));
 
     xbee.send(tx);
-    message = "Sent seq: " + String(sendID) + ", " + String(sizeof(payload)) + " bytes";
+    mySerial->println("Sent seq: " + String(sendID) + ", " + String(sizeof(payload)) + " bytes");
 }
 
 // Retransmit
@@ -62,6 +63,7 @@ bool xbeeController::retransmit(String data)
     else
     {
         retransmission = 0;
+        mySerial->println("Error on seq: " + String(sendID) + ", maximum number of retransmissions exceeded.");
         return false;
     }
 }
@@ -92,86 +94,71 @@ bool xbeeController::ackSentData(String data)
             else
             {
                 // the remote XBee did not receive our packet. is it powered on?
-                message = "Error on seq: " + String(sendID) + ", the remote XBee did not receive our packet.";
+                mySerial->println("Error on seq: " + String(sendID) + ", the remote XBee did not receive our packet.");
                 return retransmit(data);
             }
         }      
     }
     else if (xbee.getResponse().isError())
     {
-        message = "Error on seq: " + String(sendID) + ", error reading packet. Error code: " + String(xbee.getResponse().getErrorCode());
+        mySerial->println("Error on seq: " + String(sendID) + ", error reading packet. Error code: " + String(xbee.getResponse().getErrorCode()));
         return retransmit(data);
     }
     else
     {
         // local XBee did not provide a timely TX Status Response.  Radio is not configured properly or connected
-        message = "Error on seq: " + String(sendID) + ", local XBee did not provide a timely TX Status Response.";
+        mySerial->println("Error on seq: " + String(sendID) + ", local XBee did not provide a timely TX Status Response.");
         return retransmit(data);
     }
 }
 
-//// Receive Data
-//bool xbeeController::receiveData()
-//{
-//    // continuously reads packets
-//    xbee.readPacket();
-//    
-//    if (xbee.getResponse().isAvailable())
-//    {
-//        // got something
-//            
-//        if (xbee.getResponse().getApiId() == ZB_RX_RESPONSE)
-//        {
-//            // got a rx packet
-//            
-//            xbee.getResponse().getZBRxResponse(rx64);
-//            uint8_t option = rx64.getOption();
-//
-//            byte dataLength = rx64.getDataLength() + 1;
-////            receiveBuffer = (char*)malloc(dataLength);
-////            receiveBufferData = true;
-////            
-////            // read in each byte of the incoming data
-////            for (int i = 0; i < dataLength - 1; i++)
-////            {
-////                receiveBuffer[i] = rx64.getData(i);
-////            }
-////            receiveBuffer[dataLength - 1] = 0;
-//            
-//            message = "Received seq: " + String(receiveID);
-//
-//            receiveID++;
-//            return true;
-//        }
-//        else
-//        {
-//            // not something we were expecting
-//            message = "Error on ackseq: " + String(receiveID) + ", ZB_RX_RESPONSE: format not expected";
-//            return false;           
-//        }       
-//    }
-//    else if (xbee.getResponse().isError())
-//    {
-//        message = "Error on ackseq: " + String(receiveID) + ", error reading packet. Error code: " + String(xbee.getResponse().getErrorCode());  
-//        return false;      
-//    }
-//
-//    // no data was available, radio is idle.
-//    return false;
-//}
-
-//// Has Message
-//bool xbeeController::hasMessage()
-//{
-//    return message.length() != 0;
-//}
-
-// Get Last Message
-String xbeeController::getLastMessage()
+// Receive Data
+String xbeeController::receiveData()
 {
-    String output = message;
-    message = "";
-    return output;
+    // continuously reads packets
+    xbee.readPacket();
+    
+    if (xbee.getResponse().isAvailable())
+    {
+        // got something
+            
+        if (xbee.getResponse().getApiId() == ZB_RX_RESPONSE)
+        {
+            // got a rx packet
+            
+            xbee.getResponse().getZBRxResponse(rx64);
+            uint8_t option = rx64.getOption();
+
+            byte dataLength = rx64.getDataLength() + 1;
+            char data[dataLength];
+            
+            // read in each byte of the incoming data
+            for (int i = 0; i < dataLength - 1; i++)
+            {
+                data[i] = rx64.getData(i);
+            }
+            data[dataLength - 1] = 0;
+
+            String payload = String(data);
+            mySerial->println("Received seq: " + String(receiveID) + ", " + String(dataLength) + " bytes");
+            receiveID++;
+            return payload;
+        }
+        else
+        {
+            // not something we were expecting
+            mySerial->println("Error on ackseq: " + String(receiveID) + ", ZB_RX_RESPONSE: format not expected");
+            return "";           
+        }       
+    }
+    else if (xbee.getResponse().isError())
+    {
+        mySerial->println("Error on ackseq: " + String(receiveID) + ", error reading packet. Error code: " + String(xbee.getResponse().getErrorCode()));  
+        return "";      
+    }
+
+    // no data was available, radio is idle.
+    return "";
 }
 
 //// Get Data

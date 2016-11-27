@@ -2,23 +2,26 @@
 #define XBEE_CONTROLLER_H
 
 #include <XBee.h>
+#include <SoftwareSerial.h>     // console serial output
 
 class xbeeController
 {
 public:
     xbeeController();
-    xbeeController(long SHaddress, long SLaddress);
+    xbeeController(long SHaddress, long SLaddress, SoftwareSerial *object);
     ~xbeeController();
 
     void sendData(String payload);
     bool ackSentData(String payload);
-    //bool receiveData();
+    String receiveData();
     //bool hasMessage();
-    String getLastMessage();
     //char* getData();
 
 private:
     bool retransmit(String payload);
+
+    // Diagnostic output
+    SoftwareSerial *mySerial;
     
     // Radio library
     XBee xbee;
@@ -33,7 +36,6 @@ private:
     ZBRxResponse rx64;
 
     // Other globals
-    String message;
     byte sendID;
     byte receiveID;
     byte retransmission;

@@ -32,7 +32,7 @@ void setup()
     mySerial.println("Starting booting Controller");
 
     // Start radio and allow to fully boot and establish connection to remote
-    radio = xbeeController(XBEE_SH_ADDRESS, XBEE_SL_ADDRESS);
+    radio = xbeeController(XBEE_SH_ADDRESS, XBEE_SL_ADDRESS, &mySerial);
     delay(10000);  
 
     // Initialize globals
@@ -55,6 +55,12 @@ void loop()
         
         // Use the snapshot to set track time until next event
         previousMillis = currentMillis;
+    }
+
+    String payload = radio.receiveData();
+    if (payload != 0)
+    {
+        mySerial.println(payload);
     }
 
 //    // Poll for incoming transmissions.
@@ -137,12 +143,8 @@ void sendPayload(String data)
     //mySerial.println("debug: in sendPayload");
     radio.sendData(data);
     //mySerial.println("debug: finished sending");
-    mySerial.println(radio.getLastMessage());
 
     // Block on ackSentData.  If errors occur, display error.
-    if (!radio.ackSentData(data))
-    {
-        mySerial.println(radio.getLastMessage());
-    }
+    radio.ackSentData(data);
 }
 

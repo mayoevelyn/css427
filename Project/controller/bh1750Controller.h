@@ -14,8 +14,9 @@ public:
     
 private:
     byte BH1750_I2C_ADDRESS;
+    byte buff[2];
 
-    byte readSensor(byte* buff);
+    int readSensor();
 };
 
 #endif

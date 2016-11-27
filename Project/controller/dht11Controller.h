@@ -18,7 +18,7 @@ public:
     int getHumidityReading();
     
 private:
-    DHT_Unified* dht;
+    byte dataPin;
 };
 
 #endif

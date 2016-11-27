@@ -20,19 +20,18 @@ bh1750Controller::~bh1750Controller()
 // Get Reading
 int bh1750Controller::getReading()
 {
-    float value = -1;
-    byte buff[2];
+    float value = 0;
 
-    if (readSensor(buff) == 2)
+    if (readSensor() == 2)
     {
         value = ((buff[0] << 8) | buff[1]) / 1.2;
     }
 
-    return (int)(value, DEC);
+    return (int)(value);
 }
 
 // Read Sensor
-byte bh1750Controller::readSensor(byte* buff)
+int bh1750Controller::readSensor()
 {
     byte i = 0;
     Wire.beginTransmission(BH1750_I2C_ADDRESS);

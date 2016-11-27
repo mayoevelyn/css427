@@ -3,8 +3,7 @@
 // Constructor
 dht11Controller::dht11Controller(byte dataPin)
 {
-    *dht = DHT_Unified(dataPin, DHTTYPE);
-    dht->begin();
+    this->dataPin = dataPin;
 }
 
 // Destructor
@@ -16,9 +15,12 @@ dht11Controller::~dht11Controller()
 // Get Temp Reading
 int dht11Controller::getTempReading()
 {
+    DHT_Unified dht(dataPin, DHTTYPE);
+    dht.begin();
+    
     // Get temperature event and print its value.
     sensors_event_t event;  
-    dht->temperature().getEvent(&event);
+    dht.temperature().getEvent(&event);
 
     if (isnan(event.temperature))
     {
@@ -32,9 +34,12 @@ int dht11Controller::getTempReading()
 // Get Humidity Reading
 int dht11Controller::getHumidityReading()
 {
+    DHT_Unified dht(dataPin, DHTTYPE);
+    dht.begin();
+    
     // Get humidity event and print its value.
     sensors_event_t event; 
-    dht->humidity().getEvent(&event);
+    dht.humidity().getEvent(&event);
     
     if (isnan(event.relative_humidity))
     {

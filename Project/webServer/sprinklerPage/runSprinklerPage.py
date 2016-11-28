@@ -20,11 +20,11 @@ class SensorsForm(Form):
     moistureThreshold = TextField('Threshold:')
 
 class PreferencesForm(Form):
-    sensorStartTime = SelectField('Start', choices=[(0, '12:00'), (1, '1:00'), (2, '2:00'), (3, '3:00'), (4, '4:00'), (5, '5:00'), (6, '6:00'), (7, '7:00'), (8, '8:00'), (9, '9:00'), (10, '10:00'), (11, '11:00')])
+    sensorStartTime = SelectField('Start', choices=[(1, '1:00'), (2, '2:00'), (3, '3:00'), (4, '4:00'), (5, '5:00'), (6, '6:00'), (7, '7:00'), (8, '8:00'), (9, '9:00'), (10, '10:00'), (11, '11:00'), (12, '12:00')])
     sensorStartAMPM = SelectField('AM/PM', choices=[(0, 'AM'), (1, 'PM')])
-    sensorEndTime = SelectField('End', choices=[(0, '12:00'), (1, '1:00'), (2, '2:00'), (3, '3:00'), (4, '4:00'), (5, '5:00'), (6, '6:00'), (7, '7:00'), (8, '8:00'), (9, '9:00'), (10, '10:00'), (11, '11:00')])
+    sensorEndTime = SelectField('End', choices=[(1, '1:00'), (2, '2:00'), (3, '3:00'), (4, '4:00'), (5, '5:00'), (6, '6:00'), (7, '7:00'), (8, '8:00'), (9, '9:00'), (10, '10:00'), (11, '11:00'), (12, '12:00')])
     sensorEndAMPM = SelectField('AM/PM', choices=[(0, 'AM'), (1, 'PM')])
-    irrigationStartTime = SelectField('Schedule for', choices=[(0, '12:00'), (1, '1:00'), (2, '2:00'), (3, '3:00'), (4, '4:00'), (5, '5:00'), (6, '6:00'), (7, '7:00'), (8, '8:00'), (9, '9:00'), (10, '10:00'), (11, '11:00')])
+    irrigationStartTime = SelectField('Schedule for', choices=[(1, '1:00'), (2, '2:00'), (3, '3:00'), (4, '4:00'), (5, '5:00'), (6, '6:00'), (7, '7:00'), (8, '8:00'), (9, '9:00'), (10, '10:00'), (11, '11:00'), (12, '12:00')])
     irrigationStartAMPM = SelectField('AM/PM', choices=[(0, 'AM'), (1, 'PM')])
     irrigationDuration = SelectField('Keep valve open for', choices=[(0.5, '30 minutes'), (1, '1 hour'), (1.5, '1.5 hours'), (2, '2 hours'), (2.5, '2.5 hours'), (3, '3 hours'), (3.5, '3.5 hours'), (4, '4 hours')])
     
@@ -48,9 +48,11 @@ sensorData = pickle.load(fp)
 def toggleValve():
     toggle_form = ToggleForm(request.form)
 
+    # Load the previous valve state
     fp = open("cmdStationData/valveState.pkl")
     valveState = pickle.load(fp)
 
+    # Load the previous sequence number
     fp = open("sequenceNumbers/formValveSeqNum.pkl")
     formValveSeqNum = pickle.load(fp)
     
@@ -78,12 +80,13 @@ def toggleValve():
         formValveSeqNum["SeqNum"] = valveSeqNum
         formValveState["SeqNum"] = valveSeqNum
 
-        # Save data to file
-        fp = open("formData/formValveState.pkl", "w")
-        pickle.dump(formValveState, fp)
-
+        # Save sequence number to file
         fp = open("sequenceNumbers/formValveSeqNum.pkl", "w")
         pickle.dump(formValveSeqNum, fp)
+
+        # Save form data to file
+        fp = open("formData/formValveState.pkl", "w")
+        pickle.dump(formValveState, fp)
 
     return render_template(
         'index.html',
@@ -101,14 +104,15 @@ def toggleValve():
 @app.route("/sensors", methods=['GET', 'POST'])
 def sensors():    
     sensors_form = SensorsForm(request.form)
-    
+
+    # Load the previous sequence number
     fp = open("sequenceNumbers/formSensorsSeqNum.pkl")
     formSensorsSeqNum = pickle.load(fp)
 
     if request.method == 'POST':        
         print "sensors function"
 
-        # Collect form data from form controls
+        # Collect form data from controls
         temperatureThreshold = request.form['temperatureThreshold']
         humidityThreshold = request.form['humidityThreshold']
         brightnessThreshold = request.form['brightnessThreshold']
@@ -129,16 +133,14 @@ def sensors():
         
         formSensorsSeqNum["SeqNum"] = sensorsSeqNum
         formSensors["SeqNum"] = sensorsSeqNum
-        
-        # Save data to file
-        fp = open("formData/formSensors.pkl", "w")
-        pickle.dump(formSensors, fp)
 
+        # Save sequence number to file
         fp = open("sequenceNumbers/formSensorsSeqNum.pkl", "w")
         pickle.dump(formSensorsSeqNum, fp)
-
         
-        
+        # Save form data to file
+        fp = open("formData/formSensors.pkl", "w")
+        pickle.dump(formSensors, fp)
 
     return render_template(
         'index.html',
@@ -155,20 +157,24 @@ def sensors():
 @app.route("/preferences", methods=['GET', 'POST'])
 def preferences():
     preferences_form = PreferencesForm(request.form)
+
+    # Load the previous sequence number
+    fp = open("sequenceNumbers/formPreferencesSeqNum.pkl")
+    formPreferencesSeqNum = pickle.load(fp)
+    
     if request.method == 'POST':        
         print "preferences function"
 
-        # Collect form data from form controls
+        # Collect form data from controls
         sensorStartTime = request.form['sensorStartTime']
         sensorStartAMPM = request.form['sensorStartAMPM']
         sensorEndTime = request.form['sensorEndTime']
         sensorEndAMPM = request.form['sensorEndAMPM']
         irrigationStartTime = request.form['irrigationStartTime']
         irrigationStartAMPM = request.form['irrigationStartAMPM']
-        irrigationDuration = request.form['irrigationDuration']
+        irrigationDuration = request.form['irrigationDuration']        
         
-        
-        # Save form data to file
+        # Package preferences to be written
         formPreferences = {}
         formPreferences["SensorStartTime"] = sensorStartTime
         formPreferences["SensorStartAMPM"] = sensorStartAMPM
@@ -178,9 +184,22 @@ def preferences():
         formPreferences["IrrigationStartAMPM"] = irrigationStartAMPM
         formPreferences["IrrigationDuration"] = irrigationDuration
 
-        fp = open("formData/formPreferences.pkl", "w")
-        pickle.dump(formPreferences, fp)
+        # Increment the sequence number
+        preferencesSeqNum = formPreferencesSeqNum["SeqNum"]
+        preferencesSeqNum = preferencesSeqNum + 1
+        if preferencesSeqNum == 10:
+            preferencesSeqNum = 0
         
+        formPreferencesSeqNum["SeqNum"] = preferencesSeqNum
+        formPreferences["SeqNum"] = preferencesSeqNum
+
+        # Save sequence number to file
+        fp = open("sequenceNumbers/formPreferencesSeqNum.pkl", "w")
+        pickle.dump(formPreferencesSeqNum, fp)
+
+        # Save form data to file
+        fp = open("formData/formPreferences.pkl", "w")
+        pickle.dump(formPreferences, fp)        
 
     return render_template(
         'index.html',
@@ -193,8 +212,6 @@ def preferences():
         history=history,
         sensorData=sensorData
         )
-
-
 
 @app.route("/", methods=['GET', 'POST'])
 def index():

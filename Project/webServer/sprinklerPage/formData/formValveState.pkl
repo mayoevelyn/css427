@@ -4,6 +4,6 @@ p1
 I2
 sS'ValveState'
 p2
-S'Open'
+S'Closed'
 p3
 s.

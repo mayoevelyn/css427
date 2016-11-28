@@ -1,5 +1,5 @@
 (dp0
 S'SeqNum'
 p1
-I9
+I2
 s.

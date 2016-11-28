@@ -57,16 +57,19 @@ def toggleValve():
     if request.method == 'POST':        
         print "toggleValve function"        
 
+        # Read the value of the form radio button
         toggleChoice = request.form['toggle']
         formValveState = {}
         print toggleChoice
 
+        # Package the radio button choice
         if toggleChoice == '0':
             formValveState["ValveState"] = "Closed"
             
         if toggleChoice == '1':
             formValveState["ValveState"] = "Open"
 
+        # Increment the sequence number
         valveSeqNum = formValveSeqNum["SeqNum"]
         valveSeqNum = valveSeqNum + 1
         if valveSeqNum == 10:
@@ -75,6 +78,7 @@ def toggleValve():
         formValveSeqNum["SeqNum"] = valveSeqNum
         formValveState["SeqNum"] = valveSeqNum
 
+        # Save data to file
         fp = open("formData/formValveState.pkl", "w")
         pickle.dump(formValveState, fp)
 
@@ -98,6 +102,9 @@ def toggleValve():
 def sensors():    
     sensors_form = SensorsForm(request.form)
     
+    fp = open("sequenceNumbers/formSensorsSeqNum.pkl")
+    formSensorsSeqNum = pickle.load(fp)
+
     if request.method == 'POST':        
         print "sensors function"
 
@@ -107,15 +114,30 @@ def sensors():
         brightnessThreshold = request.form['brightnessThreshold']
         moistureThreshold = request.form['moistureThreshold']
 
-        # Save form data to file
+        # Package sensor readings to be written
         formSensors = {}
         formSensors["TemperatureThreshold"] = temperatureThreshold
         formSensors["HumidityThreshold"] = humidityThreshold
         formSensors["BrightnessThreshold"] = brightnessThreshold
-        formSensors["MoistureThreshold"] = moistureThreshold
+        formSensors["MoistureThreshold"] = moistureThreshold        
 
+        # Increment the sequence number
+        sensorsSeqNum = formSensorsSeqNum["SeqNum"]
+        sensorsSeqNum = sensorsSeqNum + 1
+        if sensorsSeqNum == 10:
+            sensorsSeqNum = 0
+        
+        formSensorsSeqNum["SeqNum"] = sensorsSeqNum
+        formSensors["SeqNum"] = sensorsSeqNum
+        
+        # Save data to file
         fp = open("formData/formSensors.pkl", "w")
         pickle.dump(formSensors, fp)
+
+        fp = open("sequenceNumbers/formSensorsSeqNum.pkl", "w")
+        pickle.dump(formSensorsSeqNum, fp)
+
+        
         
 
     return render_template(

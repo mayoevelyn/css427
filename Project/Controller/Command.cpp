@@ -154,7 +154,7 @@ void Command::openValve(byte zone)
         default:
             mySerial->println("readValve: error, invalid zone (" + String(zone) + ")");
             success = false;
-            return "";
+            break;
     }
 }
 
@@ -170,7 +170,7 @@ void Command::closeValve(byte zone)
         default:
             mySerial->println("readValve: error, invalid zone (" + String(zone) + ")");
             success = false;
-            return "";
+            break;
     }
 }
 
@@ -193,6 +193,6 @@ void Command::toggleValve(byte zone)
         default:
             mySerial->println("readValve: error, invalid zone (" + String(zone) + ")");
             success = false;
-            return "";
+            break;
     }
 }

@@ -27,7 +27,7 @@ private:
     // Sender globals
     XBeeAddress64 addr64;
     TxStatusResponse txStatus;
-    byte TOTAL_RETRANSMITS = 5;
+    const static byte TOTAL_RETRANSMITS = 5;
 
     // Receiver globals
     XBeeResponse response;

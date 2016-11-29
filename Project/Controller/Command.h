@@ -20,6 +20,8 @@ public:
     String packOpenValve(byte zone);
     String packCloseValve(byte zone);
     String packToggleValve(byte zone);
+    void openValve(byte zone);
+    void closeValve(byte zone);
     
 private:
     // Controller sensors
@@ -35,8 +37,6 @@ private:
     String packPayload(byte code, String data);
     String readSensors(byte zone);
     String readValve(byte zone);
-    void openValve(byte zone);
-    void closeValve(byte zone);
     void toggleValve(byte zone);
 
     bool success;

@@ -4,6 +4,7 @@
 #include "XBeeController.h"     // radio
 #include "Command.h"            // command processor
 #include "SimpleTimer.h"        // task scheduler
+#include "Schedule.h"           // event handler
 #include "Tokenizer.h"          // string tokenizer
 
 // Controller components
@@ -22,11 +23,10 @@ DS3231Controller rtc;                                   // start real time clock
 XBeeController radio;                                   // start radio communication
 Command processor(&mySerial);                           // start command processor
 SimpleTimer task;                                       // start task scheduler
+Schedule event;                                         // start event scheduler
 
 // Global Variables
 const unsigned int SENSOR_READ_INTERVAL = 6;            // seconds
-byte rtcTaskID;
-byte sensorTaskID;
 
 // Setup
 void setup()
@@ -49,9 +49,12 @@ void setup()
         //sendPayload(processor.packSensorData(i));
     }
 
+    //event.setSchedule(1, 2, 53, 1);
+
     // Start periodic tasks
-    rtcTaskID = task.setInterval(1000, taskUpdateRTC);
-    sensorTaskID = task.setInterval(SENSOR_READ_INTERVAL * 1000, taskSensors);
+    task.setInterval(1000, taskUpdateRTC);
+    task.setInterval(SENSOR_READ_INTERVAL * 1000, taskSensors);
+    task.setInterval(5000, taskCheckSchedule);
     
     mySerial.println("Finished booting Controller");
 }
@@ -100,6 +103,27 @@ void taskUpdateRTC()
 void taskSensors()
 {
     //sendPayload(processor.packSensorData(ZONE_1));
+}
+
+// Task Check Schedule
+void taskCheckSchedule()
+{
+    if (event.checkSchedule(ZONE_1, rtc.getHour(), rtc.getMinute()))
+    {
+        mySerial.println("Scheduled event:  opened valve for zone 1");
+        byte duration = event.getDuration(ZONE_1);
+        processor.openValve(ZONE_1);
+        
+        // create a one time use timer to shut off valve
+        task.setTimer((long)duration * 60 * 1000, taskCloseValveZone1, 1);
+    }
+}
+
+// Task Close Valve Zone 1
+void taskCloseValveZone1()
+{
+    mySerial.println("Scheduled event:  closed valve for zone 1");
+    processor.closeValve(ZONE_1);
 }
 
 // Execute command code

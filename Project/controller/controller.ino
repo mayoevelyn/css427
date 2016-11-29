@@ -1,9 +1,10 @@
+#include "Codes.h"              // command definitions
 #include <SoftwareSerial.h>     // console serial output
-//#include "ds3231Controller.h"   // real time clock
-#include "xbeeController.h"     // radio
-#include "command.h"            // command processor
-#include "codes.h"              // command definitions
-#include "tokenizer.h"          // string tokenizer
+#include "DS3231Controller.h"   // real time clock
+#include "XBeeController.h"     // radio
+#include "Command.h"            // command processor
+#include "SimpleTimer.h"        // task scheduler
+#include "Tokenizer.h"          // string tokenizer
 
 // Controller components
 const long XBEE_SH_ADDRESS = 0x0013A200;
@@ -17,13 +18,15 @@ const byte ZONE_1 = 1;
 
 // Globals Objects
 SoftwareSerial mySerial(SS_RX, SS_TX);                  // start interconnect over serial
-xbeeController radio;                                   // start radio communication
-//ds3231Controller rtc(DS3231_ADDRESS);                   // start real time clock
-command processor(&mySerial);                           // start command processor
+DS3231Controller rtc;                                   // start real time clock
+XBeeController radio;                                   // start radio communication
+Command processor(&mySerial);                           // start command processor
+SimpleTimer task;                                       // start task scheduler
 
 // Global Variables
 const unsigned int SENSOR_READ_INTERVAL = 6;            // seconds
-unsigned long previousMillis;
+byte rtcTaskID;
+byte sensorTaskID;
 
 // Setup
 void setup()
@@ -33,34 +36,37 @@ void setup()
     mySerial.println("Starting booting Controller");
 
     // Start radio and allow to fully boot and establish connection to remote
-    radio = xbeeController(XBEE_SH_ADDRESS, XBEE_SL_ADDRESS, &mySerial);
+    radio = XBeeController(XBEE_SH_ADDRESS, XBEE_SL_ADDRESS, &mySerial);
     delay(10000);  
 
-    // Initialize globals
-    previousMillis = 0;
+    // Start the real time clock
+    rtc = DS3231Controller(DS3231_ADDRESS);
+    mySerial.println("System time is " + rtc.getTimeString());
 
+    // Update sensors for all zones
+    for (byte i = ZONE_1; i <= ZONE_1; i++)
+    {
+        //sendPayload(processor.packSensorData(i));
+    }
+
+    // Start periodic tasks
+    rtcTaskID = task.setInterval(1000, taskUpdateRTC);
+    sensorTaskID = task.setInterval(SENSOR_READ_INTERVAL * 1000, taskSensors);
+    
     mySerial.println("Finished booting Controller");
 }
 
 // Loop
 void loop()
 {
-    // Get snapshot of time
-    unsigned long currentMillis = millis();
-
-    // Use a non-blocking delay for a periodic timed event
-    if ((unsigned long)(currentMillis - previousMillis) >= SENSOR_READ_INTERVAL * 1000)
-    {
-        //execute(C_SENSOR_DATA, ZONE_1);
-        
-        // Use the snapshot to set track time until next event
-        previousMillis = currentMillis;
-    }
-
+    // Process timers
+    task.run();
+    
+    // Listen on radio for incoming data
     String payload = radio.receiveData();
     if (payload != 0)
     {
-        tokenizer token;
+        Tokenizer token;
 
         byte payloadSize = token.getTokenCount(payload, ',');
         byte code;
@@ -82,6 +88,18 @@ void loop()
                 break;
         }
     }
+}
+
+// Task Update RTC
+void taskUpdateRTC()
+{
+    rtc.updateTime();
+}
+
+// Task Sensors
+void taskSensors()
+{
+    //sendPayload(processor.packSensorData(ZONE_1));
 }
 
 // Execute command code

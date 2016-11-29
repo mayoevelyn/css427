@@ -1,53 +1,53 @@
-#include "command.h"
+#include "Command.h"
 
 // Constructor
-command::command(SoftwareSerial *object)
+Command::Command(SoftwareSerial *object)
 {
     mySerial = object;
     success = false;
 }
 
 // Destructor()
-command::~command()
+Command::~Command()
 {
     // nothing to destruct
 }
 
 // Pack Sensor Data
-String command::packSensorData(byte zone)
+String Command::packSensorData(byte zone)
 {
     return packPayload(C_SENSOR_DATA, readSensors(zone));
 }
 
 // Pack Valve Data
-String command::packValveData(byte zone)
+String Command::packValveData(byte zone)
 {
     return packPayload(C_VALVE_DATA, readValve(zone));
 }
 
 // Pack Open Valve
-String command::packOpenValve(byte zone)
+String Command::packOpenValve(byte zone)
 {
     openValve(zone);
     return packPayload(C_SUCCESS);
 }
 
 // Pack Close Valve
-String command::packCloseValve(byte zone)
+String Command::packCloseValve(byte zone)
 {
     closeValve(zone);
     return packPayload(C_SUCCESS);
 }
 
 // Pack Toggle Valve
-String command::packToggleValve(byte zone)
+String Command::packToggleValve(byte zone)
 {
     toggleValve(zone);
     return packPayload(C_SUCCESS);
 }
 
 // Pack Payload
-String command::packPayload(byte code)
+String Command::packPayload(byte code)
 {
     if (!success)
     {
@@ -58,7 +58,7 @@ String command::packPayload(byte code)
 }
 
 // Pack Payload
-String command::packPayload(byte code, String data)
+String Command::packPayload(byte code, String data)
 {
     if (!success)
     {
@@ -71,7 +71,7 @@ String command::packPayload(byte code, String data)
 }
 
 // Read Sensors
-String command::readSensors(byte zone)
+String Command::readSensors(byte zone)
 {
     byte bh1750Addr, dht11Addr, yl38Addr;
 
@@ -89,13 +89,13 @@ String command::readSensors(byte zone)
     }
       
     // Initialize light sensor
-    bh1750Controller light = bh1750Controller(bh1750Addr);
+    BH1750Controller light = BH1750Controller(bh1750Addr);
     
     // Initialize temperature and humidity sensor
-    dht11Controller thermostat = dht11Controller(dht11Addr);
+    DHT11Controller thermostat = DHT11Controller(dht11Addr);
     
     // Initialize moisture sensor
-    yl38Controller moisture = yl38Controller(yl38Addr);
+    YL38Controller moisture = YL38Controller(yl38Addr);
      
     // Output string format:  light,temp,humidity,moisture
     String values = String((int)zone) + ",";
@@ -110,7 +110,7 @@ String command::readSensors(byte zone)
 }
 
 // Read Valve
-String command::readValve(byte zone)
+String Command::readValve(byte zone)
 {
     bool state;
     
@@ -143,7 +143,7 @@ String command::readValve(byte zone)
 }
 
 // Open Valve
-void command::openValve(byte zone)
+void Command::openValve(byte zone)
 {
     switch (zone)
     {
@@ -159,7 +159,7 @@ void command::openValve(byte zone)
 }
 
 // Close Valve
-void command::closeValve(byte zone)
+void Command::closeValve(byte zone)
 {
     switch (zone)
     {
@@ -175,7 +175,7 @@ void command::closeValve(byte zone)
 }
 
 // Toggle Valve
-void command::toggleValve(byte zone)
+void Command::toggleValve(byte zone)
 {
     switch (zone)
     {

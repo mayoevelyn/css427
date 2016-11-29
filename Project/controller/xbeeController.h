@@ -4,12 +4,12 @@
 #include <XBee.h>
 #include <SoftwareSerial.h>     // console serial output
 
-class xbeeController
+class XBeeController
 {
 public:
-    xbeeController();
-    xbeeController(long SHaddress, long SLaddress, SoftwareSerial *object);
-    ~xbeeController();
+    XBeeController();
+    XBeeController(long SHaddress, long SLaddress, SoftwareSerial *object);
+    ~XBeeController();
 
     void sendData(String payload);
     bool ackSentData(String payload);

@@ -1,19 +1,19 @@
-#include "dht11Controller.h"
+#include "DHT11Controller.h"
 
 // Constructor
-dht11Controller::dht11Controller(byte dataPin)
+DHT11Controller::DHT11Controller(byte dataPin)
 {
     this->dataPin = dataPin;
 }
 
 // Destructor
-dht11Controller::~dht11Controller()
+DHT11Controller::~DHT11Controller()
 {
     // nothing to destruct
 }
 
 // Get Temp Reading
-int dht11Controller::getTempReading()
+int DHT11Controller::getTempReading()
 {
     DHT_Unified dht(dataPin, DHTTYPE);
     dht.begin();
@@ -32,7 +32,7 @@ int dht11Controller::getTempReading()
 }
 
 // Get Humidity Reading
-int dht11Controller::getHumidityReading()
+int DHT11Controller::getHumidityReading()
 {
     DHT_Unified dht(dataPin, DHTTYPE);
     dht.begin();

@@ -3,17 +3,17 @@
 
 #include <arduino.h>
 #include <SoftwareSerial.h>     // console serial output
-#include "codes.h"              // command definitions
-#include "srd05vdcController.h" // relay
-#include "bh1750Controller.h"   // light sensor
-#include "dht11Controller.h"    // temperature and humidity
-#include "yl38Controller.h"     // moisture
+#include "Codes.h"              // command definitions
+#include "SRD05vdcController.h" // relay
+#include "BH1750Controller.h"   // light sensor
+#include "DHT11Controller.h"    // temperature and humidity
+#include "YL38Controller.h"     // moisture
 
-class command
+class Command
 {
 public:
-    command(SoftwareSerial *object);
-    ~command();
+    Command(SoftwareSerial *object);
+    ~Command();
 
     String packSensorData(byte zone);
     String packValveData(byte zone);
@@ -29,7 +29,7 @@ private:
     const byte Z1_YL38_ANALOGPIN = 62;    // A8 on Mega2560
 
     SoftwareSerial *mySerial;
-    srd05vdcController z1valve = srd05vdcController(Z1_SRD05VDC_DATAPIN);        // zone 1 valve relay
+    SRD05vdcController z1valve = SRD05vdcController(Z1_SRD05VDC_DATAPIN);        // zone 1 valve relay
 
     String packPayload(byte code);
     String packPayload(byte code, String data);

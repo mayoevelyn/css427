@@ -1,17 +1,17 @@
-#include "tokenizer.h"
+#include "Tokenizer.h"
 
 // Constructor
-tokenizer::tokenizer()
+Tokenizer::Tokenizer()
 {   
 }
 
 // Destructor
-tokenizer::~tokenizer()
+Tokenizer::~Tokenizer()
 {
 }
 
 // Get Token
-String tokenizer::getToken(String data, char delimiter, byte token)
+String Tokenizer::getToken(String data, char delimiter, byte token)
 {
     int index = data.indexOf(delimiter);
     if (index < 0)
@@ -31,7 +31,7 @@ String tokenizer::getToken(String data, char delimiter, byte token)
 }
 
 // Get Token Count
-int tokenizer::getTokenCount(String data, char delimiter)
+int Tokenizer::getTokenCount(String data, char delimiter)
 {
     int count = 1;
     int index = data.indexOf(delimiter);

@@ -8,11 +8,11 @@
 
 #define DHTTYPE DHT11
 
-class dht11Controller
+class DHT11Controller
 {
 public:
-    dht11Controller(byte dataPin);
-    ~dht11Controller();
+    DHT11Controller(byte dataPin);
+    ~DHT11Controller();
 
     int getTempReading();
     int getHumidityReading();

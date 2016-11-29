@@ -4,11 +4,12 @@
 #include <arduino.h>
 #include <Wire.h>
 
-class ds3231Controller
+class DS3231Controller
 {
 public:
-    ds3231Controller(byte address);
-    ~ds3231Controller();
+    DS3231Controller();
+    DS3231Controller(byte address);
+    ~DS3231Controller();
 
     void setHardwareTime(byte second, byte minute, byte hour, byte dayOfWeek, byte dayOfMonth, byte month, byte year);
     void updateTime();
@@ -25,7 +26,8 @@ public:
 private:
     byte decToBcd(byte val);
     byte bcdToDec(byte val);
-    
+
+    // Global Variables
     byte DS3231_I2C_ADDRESS;
 
     byte second;

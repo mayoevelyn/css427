@@ -1,18 +1,18 @@
-#ifndef TOKENIZER_H
-#define TOKENIZER_H
+#ifndef Tokenizer_H
+#define Tokenizer_H
 
 #include <arduino.h>
 
-class tokenizer
+class Tokenizer
 {
-    public:
-        tokenizer();       
-        ~tokenizer();
+public:
+    Tokenizer();       
+    ~Tokenizer();
 
-        String getToken(String data, char delimiter, byte token);
-        int getTokenCount(String data, char delimiter);
+    String getToken(String data, char delimiter, byte token);
+    int getTokenCount(String data, char delimiter);
 
-    private:
+private:
 };
 
 #endif

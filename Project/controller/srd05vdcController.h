@@ -3,11 +3,11 @@
 
 #include <arduino.h>
 
-class srd05vdcController
+class SRD05vdcController
 {
 public:
-    srd05vdcController(byte dataPin);
-    ~srd05vdcController();
+    SRD05vdcController(byte dataPin);
+    ~SRD05vdcController();
 
     void setOn();
     void setOff();

@@ -1,7 +1,7 @@
-#include "bh1750Controller.h"
+#include "BH1750Controller.h"
 
 // Constructor
-bh1750Controller::bh1750Controller(byte address)
+BH1750Controller::BH1750Controller(byte address)
 {
     BH1750_I2C_ADDRESS = address;
     Wire.begin();
@@ -12,13 +12,13 @@ bh1750Controller::bh1750Controller(byte address)
 }
 
 // Destructor
-bh1750Controller::~bh1750Controller()
+BH1750Controller::~BH1750Controller()
 {
     // nothing to destruct
 }
 
 // Get Reading
-int bh1750Controller::getReading()
+int BH1750Controller::getReading()
 {
     float value = 0;
 
@@ -31,7 +31,7 @@ int bh1750Controller::getReading()
 }
 
 // Read Sensor
-int bh1750Controller::readSensor()
+int BH1750Controller::readSensor()
 {
     byte i = 0;
     Wire.beginTransmission(BH1750_I2C_ADDRESS);

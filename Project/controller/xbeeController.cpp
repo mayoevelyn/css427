@@ -1,13 +1,13 @@
-#include "xbeeController.h"
+#include "XBeeController.h"
 
 // Constructor
-xbeeController::xbeeController()
+XBeeController::XBeeController()
 {
     // nothing to construct
 }
 
 // Constructor
-xbeeController::xbeeController(long SHaddress, long SLaddress, SoftwareSerial *object)
+XBeeController::XBeeController(long SHaddress, long SLaddress, SoftwareSerial *object)
 {
     // Prepare serial connections
     Serial.begin(9600);
@@ -34,13 +34,13 @@ xbeeController::xbeeController(long SHaddress, long SLaddress, SoftwareSerial *o
 }
 
 // Destructor
-xbeeController::~xbeeController()
+XBeeController::~XBeeController()
 {
     // nothing to destruct
 }
 
 // Send Data
-void xbeeController::sendData(String data)
+void XBeeController::sendData(String data)
 {
     char payload[data.length()];
     strcpy(payload, data.c_str());
@@ -52,7 +52,7 @@ void xbeeController::sendData(String data)
 }
 
 // Retransmit
-bool xbeeController::retransmit(String data)
+bool XBeeController::retransmit(String data)
 {
     if (retransmission < TOTAL_RETRANSMITS)
     {
@@ -69,7 +69,7 @@ bool xbeeController::retransmit(String data)
 }
 
 // Ack Sent Data
-bool xbeeController::ackSentData(String data)
+bool XBeeController::ackSentData(String data)
 {
     // block and verify the payload was sent
     // after sending a tx request, we expect a status response
@@ -113,7 +113,7 @@ bool xbeeController::ackSentData(String data)
 }
 
 // Receive Data
-String xbeeController::receiveData()
+String XBeeController::receiveData()
 {
     // continuously reads packets
     xbee.readPacket();

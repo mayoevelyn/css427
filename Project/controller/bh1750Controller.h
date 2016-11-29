@@ -4,11 +4,11 @@
 #include <arduino.h>
 #include <Wire.h>
 
-class bh1750Controller
+class BH1750Controller
 {
 public:
-    bh1750Controller(byte address);
-    ~bh1750Controller();
+    BH1750Controller(byte address);
+    ~BH1750Controller();
 
     int getReading();
     

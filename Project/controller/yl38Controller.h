@@ -3,11 +3,11 @@
 
 #include <arduino.h>
 
-class yl38Controller
+class YL38Controller
 {
 public:
-    yl38Controller(byte analogPin);
-    ~yl38Controller();
+    YL38Controller(byte analogPin);
+    ~YL38Controller();
 
     int getReading();
     

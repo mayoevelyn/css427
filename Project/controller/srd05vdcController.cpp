@@ -1,7 +1,7 @@
-#include "srd05vdcController.h"
+#include "SRD05vdcController.h"
 
 // Constructor
-srd05vdcController::srd05vdcController(byte dataPin)
+SRD05vdcController::SRD05vdcController(byte dataPin)
 {
     this->dataPin = dataPin;
     
@@ -12,27 +12,27 @@ srd05vdcController::srd05vdcController(byte dataPin)
 }
 
 // Destructor
-srd05vdcController::~srd05vdcController()
+SRD05vdcController::~SRD05vdcController()
 {
     // nothing to destruct
 }
 
 // Set On
-void srd05vdcController::setOn()
+void SRD05vdcController::setOn()
 {
     digitalWrite(dataPin, HIGH);
     on = true;
 }
 
 // Set Off
-void srd05vdcController::setOff()
+void SRD05vdcController::setOff()
 {
     digitalWrite(dataPin, LOW);
     on = false;
 }
 
 // Toggle
-void srd05vdcController::toggle()
+void SRD05vdcController::toggle()
 {
     if (on)
     {
@@ -45,7 +45,7 @@ void srd05vdcController::toggle()
 }
 
 // Is On
-bool srd05vdcController::isOn()
+bool SRD05vdcController::isOn()
 {
     return on;
 }

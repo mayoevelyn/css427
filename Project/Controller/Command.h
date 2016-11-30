@@ -2,12 +2,14 @@
 #define COMMAND_H
 
 #include <arduino.h>
+#include <WString.h>
 #include <SoftwareSerial.h>     // console serial output
 #include "Codes.h"              // command definitions
 #include "SRD05vdcController.h" // relay
 #include "BH1750Controller.h"   // light sensor
 #include "DHT11Controller.h"    // temperature and humidity
 #include "YL38Controller.h"     // moisture
+#include "Tokenizer.h"          // string tokenizer
 
 class Command
 {
@@ -20,10 +22,30 @@ public:
     String packOpenValve(byte zone);
     String packCloseValve(byte zone);
     String packToggleValve(byte zone);
+    String packSetSchedule(String payload);
+    
     void openValve(byte zone);
     void closeValve(byte zone);
+
+    void setSchedule(String payload);
+    void setSchedule(byte zone, byte hour, byte minute, byte duration);
+    byte getDuration(byte zone);
+    bool checkSchedule(byte zone, byte hour, byte minute);
     
 private:
+    const static byte TOTAL_ZONES = 1;
+    
+    typedef struct
+    {
+        byte zone;
+        byte hour;
+        byte minute;
+        byte duration;
+        bool enabled;  
+    } Zone;
+    
+    Zone collection[TOTAL_ZONES];
+    
     // Controller sensors
     const byte Z1_BH1750_ADDRESS = 0x23;
     const byte Z1_SRD05VDC_DATAPIN = 52;

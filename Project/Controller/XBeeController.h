@@ -1,6 +1,7 @@
 #ifndef XBEE_CONTROLLER_H
 #define XBEE_CONTROLLER_H
 
+#include <WString.h>
 #include <XBee.h>
 #include <SoftwareSerial.h>     // console serial output
 

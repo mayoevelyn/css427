@@ -5,15 +5,6 @@ Command::Command(SoftwareSerial *object)
 {
     mySerial = object;
     success = false;
-
-    for (int i = 1; i <= TOTAL_ZONES; i++)
-    {
-        collection[i].zone = i;
-        collection[i].hour = -1;
-        collection[i].minute = -1;
-        collection[i].duration = -1;
-        collection[i].enabled = false;
-    }
 }
 
 // Destructor()
@@ -237,15 +228,7 @@ void Command::setSchedule(String payload)
     Tokenizer token;
     
     byte zone = (byte)token.getToken(payload, ',', 1).toInt();
-    byte hour = (byte)token.getToken(payload, ',', 2).toInt();
-    byte minute = (byte)token.getToken(payload, ',', 3).toInt();
-    byte duration = (byte)token.getToken(payload, ',', 4).toInt();
-    setSchedule(zone, hour, minute, duration);
-}
-
-// Set Schedule
-void Command::setSchedule(byte zone, byte hour, byte minute, byte duration)
-{
+    
     if (zone < 1 || zone > TOTAL_ZONES)
     {
         mySerial->print(F("setSchedule: error, invalid zone ("));
@@ -255,11 +238,11 @@ void Command::setSchedule(byte zone, byte hour, byte minute, byte duration)
         return;
     }
 
-    zone--; // correct for 1 based index
-    collection[zone].hour = hour;
-    collection[zone].minute = minute;
-    collection[zone].duration = duration;
-    collection[zone].enabled = true;
+    byte hour = (byte)token.getToken(payload, ',', 2).toInt();
+    byte minute = (byte)token.getToken(payload, ',', 3).toInt();
+    byte duration = (byte)token.getToken(payload, ',', 4).toInt();
+
+    event.setSchedule(zone, hour, minute, duration);
     success = true;
 
     mySerial->print(F("setSchedule: "));
@@ -285,9 +268,8 @@ byte Command::getDuration(byte zone)
         return 0;
     }
     
-    zone--; // correct for 1 based index
     success = true;
-    return collection[zone].duration;
+    return event.getDuration(zone);
 }
 
 // Check Schedule
@@ -302,14 +284,7 @@ bool Command::checkSchedule(byte zone, byte hour, byte minute)
         return false;
     }
 
-    zone--; // correct for 1 based index
     success = true;
-    if (collection[zone].enabled && collection[zone].hour == hour && collection[zone].minute == minute)
-    {
-        collection[zone].enabled = false;
-        return true;
-    }
-
-    return false;
+    return event.checkSchedule(zone, hour, minute);
 }
 

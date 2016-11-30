@@ -5,6 +5,7 @@
 #include <WString.h>
 #include <SoftwareSerial.h>     // console serial output
 #include "Codes.h"              // command definitions
+#include "Schedule.h"           // irrigation scheduling
 #include "SRD05vdcController.h" // relay
 #include "BH1750Controller.h"   // light sensor
 #include "DHT11Controller.h"    // temperature and humidity
@@ -33,18 +34,7 @@ public:
     bool checkSchedule(byte zone, byte hour, byte minute);
     
 private:
-    const static byte TOTAL_ZONES = 1;
-    
-    typedef struct
-    {
-        byte zone;
-        byte hour;
-        byte minute;
-        byte duration;
-        bool enabled;  
-    } Zone;
-    
-    Zone collection[TOTAL_ZONES];
+    const byte TOTAL_ZONES = 1;
     
     // Controller sensors
     const byte Z1_BH1750_ADDRESS = 0x23;
@@ -53,6 +43,7 @@ private:
     const byte Z1_YL38_ANALOGPIN = 62;    // A8 on Mega2560
 
     SoftwareSerial *mySerial;
+    Schedule event;
     SRD05vdcController z1valve = SRD05vdcController(Z1_SRD05VDC_DATAPIN);        // zone 1 valve relay
 
     String packPayload(byte code);

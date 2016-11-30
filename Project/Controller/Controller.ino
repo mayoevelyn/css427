@@ -32,7 +32,7 @@ void setup()
 {
     // Set the data rate for the SoftwareSerial port
     mySerial.begin(4800);
-    mySerial.println(F("Starting booting Controller"));
+    mySerial.println(F("Started booting Controller"));
 
     // Start radio and allow to fully boot and establish connection to remote
     radio = XBeeController(XBEE_SH_ADDRESS, XBEE_SL_ADDRESS, &mySerial);
@@ -70,17 +70,15 @@ void loop()
         Tokenizer token;
 
         byte payloadSize = token.getTokenCount(payload, ',');
-        byte code;
+        byte code = (byte)token.getToken(payload, ',', 0).toInt();
         byte zone;
         
         switch (payloadSize)
         {
             case 1:
-                code = (byte)token.getToken(payload, ',', 0).toInt();
                 execute(code);
                 break;
             case 2:
-                code = (byte)token.getToken(payload, ',', 0).toInt();
                 zone = (byte)token.getToken(payload, ',', 1).toInt();
                 execute(code, zone);
                 break;
@@ -181,6 +179,9 @@ void execute(byte code, String payload)
             break;
         case C_SET_SCHEDULE:
             sendPayload(processor.packSetSchedule(payload));
+            break;
+        default:
+            sendPayload(String(C_ACK));
             break;
     }
 }

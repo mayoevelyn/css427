@@ -50,7 +50,7 @@ void XBeeController::sendData(String data)
     xbee.send(tx);
     mySerial->print(F("Sent seq: "));
     mySerial->print(sendID);
-    mySerial->print(F(", "));
+    mySerial->print(F(", data: "));
     mySerial->println(data);
 }
 
@@ -154,7 +154,7 @@ String XBeeController::receiveData()
             String payload = String(data);
             mySerial->print(F("Received seq: "));
             mySerial->print(receiveID);
-            mySerial->print(F(", "));
+            mySerial->print(F(", data: "));
             mySerial->println(payload);
             receiveID++;
             return payload;
@@ -162,7 +162,7 @@ String XBeeController::receiveData()
         else
         {
             // not something we were expecting
-            mySerial->print(F("Error on ackseq: "));
+            mySerial->print(F("Error on received seq: "));
             mySerial->print(receiveID);
             mySerial->println(F(", ZB_RX_RESPONSE: format not expected"));
             return "";           
@@ -170,7 +170,7 @@ String XBeeController::receiveData()
     }
     else if (xbee.getResponse().isError())
     {
-        mySerial->print(F("Error on ackseq: "));
+        mySerial->print(F("Error on received seq: "));
         mySerial->print(receiveID);
         mySerial->print(F(", error reading packet. Error code: "));
         mySerial->println(xbee.getResponse().getErrorCode());  

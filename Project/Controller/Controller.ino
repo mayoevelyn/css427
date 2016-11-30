@@ -1,10 +1,10 @@
-#include "Codes.h"              // command definitions
+#include <WString.h>
 #include <SoftwareSerial.h>     // console serial output
+#include "Codes.h"              // command definitions
 #include "DS3231Controller.h"   // real time clock
 #include "XBeeController.h"     // radio
 #include "Command.h"            // command processor
 #include "SimpleTimer.h"        // task scheduler
-#include "Schedule.h"           // event handler
 #include "Tokenizer.h"          // string tokenizer
 
 // Controller components
@@ -23,17 +23,16 @@ DS3231Controller rtc;                                   // start real time clock
 XBeeController radio;                                   // start radio communication
 Command processor(&mySerial);                           // start command processor
 SimpleTimer task;                                       // start task scheduler
-Schedule event;                                         // start event scheduler
 
 // Global Variables
-const unsigned int SENSOR_READ_INTERVAL = 6;            // seconds
+const unsigned int SENSOR_READ_INTERVAL = 30;            // seconds
 
 // Setup
 void setup()
 {
     // Set the data rate for the SoftwareSerial port
     mySerial.begin(4800);
-    mySerial.println("Starting booting Controller");
+    mySerial.println(F("Starting booting Controller"));
 
     // Start radio and allow to fully boot and establish connection to remote
     radio = XBeeController(XBEE_SH_ADDRESS, XBEE_SL_ADDRESS, &mySerial);
@@ -41,22 +40,21 @@ void setup()
 
     // Start the real time clock
     rtc = DS3231Controller(DS3231_ADDRESS);
-    mySerial.println("System time is " + rtc.getTimeString());
+    mySerial.print(F("System time is "));
+    mySerial.println(rtc.getTimeString());
 
     // Update sensors for all zones
     for (byte i = ZONE_1; i <= ZONE_1; i++)
     {
-        //sendPayload(processor.packSensorData(i));
+        sendPayload(processor.packSensorData(i));
     }
-
-    //event.setSchedule(1, 2, 53, 1);
 
     // Start periodic tasks
     task.setInterval(1000, taskUpdateRTC);
     task.setInterval(SENSOR_READ_INTERVAL * 1000, taskSensors);
     task.setInterval(5000, taskCheckSchedule);
     
-    mySerial.println("Finished booting Controller");
+    mySerial.println(F("Finished booting Controller"));
 }
 
 // Loop
@@ -87,7 +85,7 @@ void loop()
                 execute(code, zone);
                 break;
             default:
-                execute(payload, payloadSize);
+                execute(code, payload);
                 break;
         }
     }
@@ -102,16 +100,16 @@ void taskUpdateRTC()
 // Task Sensors
 void taskSensors()
 {
-    //sendPayload(processor.packSensorData(ZONE_1));
+    sendPayload(processor.packSensorData(ZONE_1));
 }
 
 // Task Check Schedule
 void taskCheckSchedule()
 {
-    if (event.checkSchedule(ZONE_1, rtc.getHour(), rtc.getMinute()))
+    if (processor.checkSchedule(ZONE_1, rtc.getHour(), rtc.getMinute()))
     {
-        mySerial.println("Scheduled event:  opened valve for zone 1");
-        byte duration = event.getDuration(ZONE_1);
+        mySerial.println(F("Scheduled event:  begin irrigation for zone 1"));
+        byte duration = processor.getDuration(ZONE_1);
         processor.openValve(ZONE_1);
         
         // create a one time use timer to shut off valve
@@ -122,7 +120,7 @@ void taskCheckSchedule()
 // Task Close Valve Zone 1
 void taskCloseValveZone1()
 {
-    mySerial.println("Scheduled event:  closed valve for zone 1");
+    mySerial.println(F("Scheduled event:  end irrigation for zone 1"));
     processor.closeValve(ZONE_1);
 }
 
@@ -132,6 +130,7 @@ void execute(byte code)
     switch (code)
     {
         case C_GET_TIME:
+            // needs to be implemented
             break;
         case C_GET_ALL_SENSORS:
             // Adjust endpoint to reflect last zone
@@ -173,18 +172,17 @@ void execute(byte code, byte zone)
 }
 
 // Execute received command code
-void execute(String payload, byte payloadSize)
+void execute(byte code, String payload)
 {
-//    byte code;
-//    byte zone;
-//
-//    switch (payload[0])
-//    {
-//        case C_SET_TIME:
-//            break;
-//        case C_SET_SCHEDULE:
-//            break;
-//    }
+    switch (code)
+    {
+        case C_SET_TIME:
+            // needs to be implemented
+            break;
+        case C_SET_SCHEDULE:
+            sendPayload(processor.packSetSchedule(payload));
+            break;
+    }
 }
 
 // Send Payload

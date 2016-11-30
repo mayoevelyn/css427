@@ -48,7 +48,10 @@ void XBeeController::sendData(String data)
     Tx64Request tx = Tx64Request(addr64, payload, sizeof(payload));
 
     xbee.send(tx);
-    mySerial->println("Sent seq: " + String(sendID) + ", " + String(sizeof(payload)) + " bytes");
+    mySerial->print(F("Sent seq: "));
+    mySerial->print(sendID);
+    mySerial->print(F(", "));
+    mySerial->println(data);
 }
 
 // Retransmit
@@ -63,7 +66,9 @@ bool XBeeController::retransmit(String data)
     else
     {
         retransmission = 0;
-        mySerial->println("Error on seq: " + String(sendID) + ", maximum number of retransmissions exceeded.");
+        mySerial->print(F("Error on seq: "));
+        mySerial->print(sendID);
+        mySerial->println(F(", maximum number of retransmissions exceeded."));
         return false;
     }
 }
@@ -94,20 +99,27 @@ bool XBeeController::ackSentData(String data)
             else
             {
                 // the remote XBee did not receive our packet. is it powered on?
-                mySerial->println("Error on seq: " + String(sendID) + ", the remote XBee did not receive our packet.");
+                mySerial->print(F("Error on seq: "));
+                mySerial->print(sendID);
+                mySerial->println(F(", the remote XBee did not receive our packet."));
                 return retransmit(data);
             }
         }      
     }
     else if (xbee.getResponse().isError())
     {
-        mySerial->println("Error on seq: " + String(sendID) + ", error reading packet. Error code: " + String(xbee.getResponse().getErrorCode()));
+        mySerial->print(F("Error on seq: "));
+        mySerial->print(sendID);
+        mySerial->print(F(", error reading packet. Error code: "));
+        mySerial->println(xbee.getResponse().getErrorCode());
         return retransmit(data);
     }
     else
     {
         // local XBee did not provide a timely TX Status Response.  Radio is not configured properly or connected
-        mySerial->println("Error on seq: " + String(sendID) + ", local XBee did not provide a timely TX Status Response.");
+        mySerial->print(F("Error on seq: "));
+        mySerial->print(sendID);
+        mySerial->println(F(", local XBee did not provide a timely TX Status Response."));
         return retransmit(data);
     }
 }
@@ -140,20 +152,28 @@ String XBeeController::receiveData()
             data[dataLength - 1] = 0;
 
             String payload = String(data);
-            mySerial->println("Received seq: " + String(receiveID) + ", " + String(dataLength) + " bytes");
+            mySerial->print(F("Received seq: "));
+            mySerial->print(receiveID);
+            mySerial->print(F(", "));
+            mySerial->println(payload);
             receiveID++;
             return payload;
         }
         else
         {
             // not something we were expecting
-            mySerial->println("Error on ackseq: " + String(receiveID) + ", ZB_RX_RESPONSE: format not expected");
+            mySerial->print(F("Error on ackseq: "));
+            mySerial->print(receiveID);
+            mySerial->println(F(", ZB_RX_RESPONSE: format not expected"));
             return "";           
         }       
     }
     else if (xbee.getResponse().isError())
     {
-        mySerial->println("Error on ackseq: " + String(receiveID) + ", error reading packet. Error code: " + String(xbee.getResponse().getErrorCode()));  
+        mySerial->print(F("Error on ackseq: "));
+        mySerial->print(receiveID);
+        mySerial->print(F(", error reading packet. Error code: "));
+        mySerial->println(xbee.getResponse().getErrorCode());  
         return "";      
     }
 

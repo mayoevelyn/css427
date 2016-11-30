@@ -5,6 +5,15 @@ Command::Command(SoftwareSerial *object)
 {
     mySerial = object;
     success = false;
+
+    for (int i = 1; i <= TOTAL_ZONES; i++)
+    {
+        collection[i].zone = i;
+        collection[i].hour = -1;
+        collection[i].minute = -1;
+        collection[i].duration = -1;
+        collection[i].enabled = false;
+    }
 }
 
 // Destructor()
@@ -46,6 +55,13 @@ String Command::packToggleValve(byte zone)
     return packPayload(C_SUCCESS);
 }
 
+// Pack Set Schedule
+String Command::packSetSchedule(String payload)
+{
+    setSchedule(payload);
+    return packPayload(C_SUCCESS);
+}
+
 // Pack Payload
 String Command::packPayload(byte code)
 {
@@ -83,7 +99,9 @@ String Command::readSensors(byte zone)
             yl38Addr = Z1_YL38_ANALOGPIN;
             break;
         default:
-            mySerial->println("readSensors: error, invalid zone (" + String(zone) + ")");
+            mySerial->print(F("readSensors: error, invalid zone ("));
+            mySerial->print(zone);
+            mySerial->println(F(")"));
             success = false;
             return "";
     }
@@ -104,7 +122,6 @@ String Command::readSensors(byte zone)
     values += String(thermostat.getHumidityReading()) + ",";
     values += String(moisture.getReading());
 
-    mySerial->println("readSensors: " + values);
     success = true;
     return values;
 }
@@ -121,7 +138,9 @@ String Command::readValve(byte zone)
             success = true;
             break;
         default:
-            mySerial->println("readValve: error, invalid zone (" + String(zone) + ")");
+            mySerial->print(F("readValve: error, invalid zone ("));
+            mySerial->print(zone);
+            mySerial->println(F(")"));
             success = false;
             return "";
     }
@@ -152,10 +171,15 @@ void Command::openValve(byte zone)
             success = true;
             break;
         default:
-            mySerial->println("readValve: error, invalid zone (" + String(zone) + ")");
+            mySerial->print(F("openValve: error, invalid zone ("));
+            mySerial->print(zone);
+            mySerial->println(F(")"));
             success = false;
             break;
     }
+
+    mySerial->print(F("openValve: zone "));
+    mySerial->println(zone);
 }
 
 // Close Valve
@@ -168,10 +192,15 @@ void Command::closeValve(byte zone)
             success = true;
             break;
         default:
-            mySerial->println("readValve: error, invalid zone (" + String(zone) + ")");
+            mySerial->print(F("closeValve: error, invalid zone ("));
+            mySerial->print(zone);
+            mySerial->println(F(")"));
             success = false;
             break;
     }
+
+    mySerial->print(F("closeValve: zone "));
+    mySerial->println(zone);
 }
 
 // Toggle Valve
@@ -191,8 +220,96 @@ void Command::toggleValve(byte zone)
             success = true;
             break;
         default:
-            mySerial->println("readValve: error, invalid zone (" + String(zone) + ")");
+            mySerial->print(F("toggleValve: error, invalid zone ("));
+            mySerial->print(zone);
+            mySerial->println(F(")"));
             success = false;
             break;
     }
+
+    mySerial->print(F("toggleValve: zone "));
+    mySerial->println(zone);
 }
+
+// Set Schedule
+void Command::setSchedule(String payload)
+{
+    Tokenizer token;
+    
+    byte zone = (byte)token.getToken(payload, ',', 1).toInt();
+    byte hour = (byte)token.getToken(payload, ',', 2).toInt();
+    byte minute = (byte)token.getToken(payload, ',', 3).toInt();
+    byte duration = (byte)token.getToken(payload, ',', 4).toInt();
+    setSchedule(zone, hour, minute, duration);
+}
+
+// Set Schedule
+void Command::setSchedule(byte zone, byte hour, byte minute, byte duration)
+{
+    if (zone < 1 || zone > TOTAL_ZONES)
+    {
+        mySerial->print(F("setSchedule: error, invalid zone ("));
+        mySerial->print(zone);
+        mySerial->println(F(")"));
+        success = false;
+        return;
+    }
+
+    zone--; // correct for 1 based index
+    collection[zone].hour = hour;
+    collection[zone].minute = minute;
+    collection[zone].duration = duration;
+    collection[zone].enabled = true;
+    success = true;
+
+    mySerial->print(F("setSchedule: "));
+    mySerial->print(hour);
+    mySerial->print(F(":"));
+    mySerial->print(minute);
+    mySerial->print(F(" for zone "));
+    mySerial->print(zone);
+    mySerial->print(F(", "));
+    mySerial->print(duration);
+    mySerial->println(F(" minute duration"));
+}
+
+// Get Duration
+byte Command::getDuration(byte zone)
+{
+    if (zone < 1 || zone > TOTAL_ZONES)
+    {
+        mySerial->print(F("getDuration: error, invalid zone ("));
+        mySerial->print(zone);
+        mySerial->println(F(")"));
+        success = false;
+        return 0;
+    }
+    
+    zone--; // correct for 1 based index
+    success = true;
+    return collection[zone].duration;
+}
+
+// Check Schedule
+bool Command::checkSchedule(byte zone, byte hour, byte minute)
+{
+    if (zone < 1 || zone > TOTAL_ZONES)
+    {
+        mySerial->print(F("checkSchedule: error, invalid zone ("));
+        mySerial->print(zone);
+        mySerial->println(F(")"));
+        success = false;
+        return false;
+    }
+
+    zone--; // correct for 1 based index
+    success = true;
+    if (collection[zone].enabled && collection[zone].hour == hour && collection[zone].minute == minute)
+    {
+        collection[zone].enabled = false;
+        return true;
+    }
+
+    return false;
+}
+

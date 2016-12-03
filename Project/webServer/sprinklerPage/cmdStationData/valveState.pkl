@@ -1,6 +1,6 @@
 (dp0
 S'ValveState'
 p1
-S'Closed'
+S'Open'
 p2
 s.

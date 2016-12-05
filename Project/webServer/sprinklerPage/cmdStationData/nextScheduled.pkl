@@ -1,10 +1,6 @@
 (dp0
-S'Day'
+S'Time'
 p1
-S'Today'
+S'18:7'
 p2
-sS'Time'
-p3
-S'20:00'
-p4
 s.

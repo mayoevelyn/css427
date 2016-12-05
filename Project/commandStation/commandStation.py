@@ -6,9 +6,6 @@ from collections import defaultdict
 import time
 from threading import Thread
 
-"""serial_port = serial.Serial('/dev/ttyUSB0', 9600)
-xbee = ZigBee(serial_port)
-"""
 
 sensorAverageCount = 0
 lightAverage = 0
@@ -19,7 +16,14 @@ moistureAverage = 0
 valveSeqNum = 1
 sensorsSeqNum = 1
 preferencesSeqNum = 1
+forceSensorUpdatesSeqNum = 1
 
+def forwardCallback(indata):    
+    onDataReceived(indata)    
+
+"""serial_port = serial.Serial('/dev/ttyUSB0', 9600)
+xbee = ZigBee(serial_port, callback=forwardCallback)
+"""
 
 def sendToController(outdata):
     """global xbee
@@ -27,12 +31,15 @@ def sendToController(outdata):
     DEST_ADDR = "\xFF\xFE"
 
     # Send packet
+    print "send to controller"
+    print outdata
     xbee.send('tx', dest_addr_long=DEST_ADDR_LONG, dest_addr=DEST_ADDR, data=outdata)            
         
     # Wait for ack
     ack = xbee.wait_read_frame()
     """
-    print "test send to controller"
+    print "send " + outdata + " to controller"
+    
 
 def updateValveReading(zone, valveState):
     # update valve reading, for now ignore zone
@@ -46,6 +53,7 @@ def updateValveReading(zone, valveState):
     fp = open("../webServer/sprinklerPage/cmdStationData/valveState.pkl", "w")
     pickle.dump(newValveState, fp)
     fp.close()
+    print "zone " + zone + " valveState " + valveState
 
 def isHot(temperature, threshold):
     # helper for setSchedule
@@ -70,17 +78,37 @@ def isBright(brightness, threshold):
 
 def isMoist(moisture, threshold):
     # helper for setSchedule
-    if moisture > threshold:
-        print moisture + threshold
-        print "moisture: " + str(moisture)
-        print "threshold: " + str(threshold)
+    if moisture < threshold:
         return True
     else:
         return False
 
+def recordHistory(wasIrrigated, scheduleHour, scheduleMinute):
+    fp = open("../webServer/sprinklerPage/cmdStationData/history.pkl")
+    history = pickle.load(fp)
+    fp.close()
+
+    dateAndTime = datetime.now().strftime("%Y-%m-%d %H:%M")
+    history[str(dateAndTime)]["Date"] = str(dateAndTime)
+
+    history[str(dateAndTime)]["Irrigation"] = wasIrrigated
+    fp = open("../webServer/sprinklerPage/cmdStationData/history.pkl", "w")
+    pickle.dump(history, fp)
+    fp.close()
+
+    if wasIrrigated == "SKIPPED":
+        return
+
+    nextScheduled = {}
+    nextScheduled["Time"] = str(scheduleHour) + ":" + str(scheduleMinute)
+    
+    fp = open("../webServer/sprinklerPage/cmdStationData/nextScheduled.pkl", "w")
+    pickle.dump(nextScheduled, fp)
+    fp.close()
+
+
 def setSchedule(zone, lightAverage, temperatureAverage, humidityAverage, moistureAverage):
     # determine if the schedule must be set and set it if needed, for now ignore zone
-    #print "trace setSchedule"
     fp = open("../webServer/sprinklerPage/cmdStationData/sensorData.pkl")
     sensorData = pickle.load(fp)
     tempThreshold = int(sensorData["Temperature"]["Threshold"])
@@ -95,17 +123,18 @@ def setSchedule(zone, lightAverage, temperatureAverage, humidityAverage, moistur
 
     currentHour = int(datetime.now().strftime("%H"))
     currentMinute = int(datetime.now().strftime("%M"))
-
+    
     # for demo only - set schedule to one minute in advance
     scheduleMinute = 0
     scheduleHour = 0
     if currentMinute < 59:
+        scheduleHour = currentHour
         scheduleMinute = currentMinute + 1
+        
     else:
         scheduleHour = currentHour + 1
         scheduleMinute = 0
-        
-    
+            
     # for demo only, duration is one minute
 
     # determine whether to schedule irrigation, ignore zone for now
@@ -113,37 +142,44 @@ def setSchedule(zone, lightAverage, temperatureAverage, humidityAverage, moistur
         # water: not humid and not moist
         schedule = "25," + str(zone) + "," + str(scheduleHour) + "," + str(scheduleMinute) + "," + "1"
         sendToController(schedule)
-        print "test not humid and not moist"
+        print "not humid and not moist"
+        
+        recordHistory("SCHEDULED", scheduleHour, scheduleMinute)        
         return
 
     if bright and not moist:
         # water: sunny and not moist
         schedule = "25," + str(zone) + "," + str(scheduleHour) + "," + str(scheduleMinute) + "," + "1"
         sendToController(schedule)
-        print "test sunny and not moist"
+        print "sunny and not moist"
+
+        recordHistory("SCHEDULED", scheduleHour, scheduleMinute) 
         return
 
     if hot and not moist:
         # water: hot and not moist
         schedule = "25," + str(zone) + "," + str(scheduleHour) + "," + str(scheduleMinute) + "," + "1"
-        print "test hot and not moist"
         sendToController(schedule)
+        print "hot and not moist"
+
+        recordHistory("SCHEDULED", scheduleHour, scheduleMinute) 
         return
     
     if hot and not humid and bright:
         # water: hot and not humid and sunny
         schedule = "25," + str(zone) + "," + str(scheduleHour) + "," + str(scheduleMinute) + "," + "1"
         sendToController(schedule)
-        print "test hot and not humid and sunny"
+        print "hot and not humid and sunny"
+
+        recordHistory("SCHEDULED", scheduleHour, scheduleMinute) 
         return
 
     print("don't water:\nhot: " + str(hot) + "\nhumid: " + str(humid) + "\nbright: " + str(bright) + "\nmoist: " + str(moist))
-    
+    recordHistory("SKIPPED", -1, -1) 
     
 
 def updateAverages(zone, light, temperature, humidity, moisture):
     # update sensor averages, for now ignore zone
-    #print "trace updateAverages"
     global sensorAverageCount
     global lightAverage
     global temperatureAverage
@@ -163,23 +199,28 @@ def updateAverages(zone, light, temperature, humidity, moisture):
         humidityAverage = int(humidityAverage / 4)
         moistureAverage = int(moistureAverage / 4)
 
-        print "sensorAverageCount " + str(sensorAverageCount)
         print "lightAverage " + str(lightAverage)
         print "temperatureAverage " + str(temperatureAverage)
         print "humidityAverage " + str(humidityAverage)
         print "moistureAverage " + str(moistureAverage)
 
         currentAverages = {
-            "Temperature":str(temperatureAverage) + "C",
-            "Humidity":str(humidityAverage) + "%",
-            "Brightness":str(lightAverage) + "L",
-            "Moisture":str(moistureAverage) + "%"}
+            "Temperature":str(temperatureAverage) + " C",
+            "Humidity":str(humidityAverage) + " %",
+            "Brightness":str(lightAverage) + " Lux",
+            "Moisture":str(moistureAverage) + " Ohms"}
 
         fp = open("../webServer/sprinklerPage/cmdStationData/averages.pkl", "w")
         pickle.dump(currentAverages, fp)
         fp.close()
-        print str(moistureAverage) + " before setSchedule"
+        
         setSchedule(zone, lightAverage, temperatureAverage, humidityAverage, moistureAverage)
+
+        sensorAverageCount = 0
+        lightAverage = 0
+        temperatureAverage = 0
+        humidityAverage = 0
+        moistureAverage = 0
     
 
 def updateSensorReadings(zone, light, temperature, humidity, moisture):
@@ -238,7 +279,19 @@ def checkWebServer():
     
         if valveSeqNum <= formValveState["SeqNum"]:            
             # do work here
-            print("\n" + str(valveSeqNum) + " Valve State: " + formValveState["ValveState"])
+            valveState = formValveState["ValveState"]
+            
+            if valveState == "Open":
+                print("Form Valve State: Open")
+                sendToController("17,1") # hard code zone 1 for now
+
+            if valveState == "Closed":
+                print("Form Valve State: Closed")
+                sendToController("18,1") # hard code zone 1 for now
+
+            if valveState == "Toggle":
+                print("Form Valve State: Toggle")
+                sendToController("19,1") # hard code zone 1 for now
 
             #increment sequence number
             valveSeqNum = valveSeqNum + 1
@@ -256,34 +309,45 @@ def checkWebServer():
         global sensorsSeqNum
         fp = open("../webServer/sprinklerPage/formData/formSensors.pkl")
         formSensors = pickle.load(fp)
+
+        fp = open("../webServer/sprinklerPage/cmdStationData/sensorData.pkl")
+        sensorData = pickle.load(fp)
     
         if sensorsSeqNum <= formSensors["SeqNum"]:
             # do work here
-            print("\n" + str(sensorsSeqNum) + " Sensor Thresholds")
+            print("Sensor Thresholds")
             
             try:
                 tThresh = int(formSensors["TemperatureThreshold"])
+                sensorData["Temperature"]["Threshold"] = tThresh
                 print("Temperature Threshold: " + str(tThresh))
             except:
                 pass
 
             try:
                 hThresh = int(formSensors["HumidityThreshold"])
+                sensorData["Humidity"]["Threshold"] = hThresh
                 print("Humidity Threshold: " + str(hThresh))
             except:
                 pass
 
             try:
                 bThresh = int(formSensors["BrightnessThreshold"])
+                sensorData["Brightness"]["Threshold"] = bThresh
                 print("Brightness Threshold: " + str(bThresh))
             except:
                 pass
 
             try:
                 mThresh = int(formSensors["MoistureThreshold"])
+                sensorData["Moisture"]["Threshold"] = mThresh
                 print("Moisture Threshold: " + str(mThresh))
             except:
                 pass
+
+            fp = open("../webServer/sprinklerPage/cmdStationData/sensorData.pkl", "w")
+            pickle.dump(sensorData, fp)
+            fp.close()
 
             # increment sequence number
             sensorsSeqNum = sensorsSeqNum + 1
@@ -304,7 +368,7 @@ def checkWebServer():
     
         if preferencesSeqNum <= formPreferences["SeqNum"]:
             # do work here
-            print("\n" + str(preferencesSeqNum) + " Preferences")
+            print("Preferences")
 
             print("Sensors start: " + str(formPreferences["SensorStartTime"]))
             if formPreferences["SensorStartAMPM"] == "0":
@@ -335,41 +399,57 @@ def checkWebServer():
             
     except:
         print "preferences exception"
+
+    ############################################
+    # Force Sensor Updates
+    try:
+        global forceSensorUpdatesSeqNum
+        fp = open("../webServer/sprinklerPage/sequenceNumbers/formForceSensorUpdatesSeqNum.pkl")
+        formForceSensorUpdatesSeqNum = pickle.load(fp)
+
+        if forceSensorUpdatesSeqNum <= formForceSensorUpdatesSeqNum["SeqNum"]:
+            # do work here
+            print "force sensor updates"
+            sendToController("22,1") # hard coding zone 1 for now
+
+            # increment sequence number
+            forceSensorUpdatesSeqNum = forceSensorUpdatesSeqNum + 1
+
+        # wrap around sequence number
+        if formForceSensorUpdatesSeqNum["SeqNum"] == 0 and forceSensorUpdatesSeqNum == 10:
+            forceSensorUpdatesSeqNum = 0
+
+    except:
+        print "force sensor updates exception"
     
+def onDataReceived(indata):
+    # Extract payload
+    rfdata = indata['rf_data']
             
+    # Split received payload into comma delineated chunks
+    splitData = rfdata.split(',')
 
-def main():       
-    """global xbee    
-
-    while True:
-        try:
-            # Receive data
-            indata = xbee.wait_read_frame()
-
-            # Extract payload
-            rfdata = indata['rf_data']
-            
-            # Split received payload into comma delineated chunks
-            splitData = rfdata.split(',')
-
-            # interpret the received payload
-            interpretedData = interpretData(splitData)            
-            
-        except KeyboardInterrupt:
-            break
-
-    serial_port.close()
-    """
-    print "testing"
-    testdata = ["50", "1", "99", "0", "99", "0"]    
-    interpretData(testdata)
-    interpretData(testdata)
-    interpretData(testdata)
-    interpretData(testdata)
-
-    while True:
-        checkWebServer()
+    # interpret the received payload
+    interpretedData = interpretData(splitData)
     
+
+def main():
+    test = ["48","1","0"]
+    interpretData(test)
+    while True:
+
+        # Web server sleeps 250 ms each call. This loop acts as a timer.
+        i = 0
+        while i < 40: # 40 iterations = 10 seconds
+            checkWebServer()
+            i += 1
+
+        # Request valve state from controller
+        sendToController("16,1") # hard coding zone 1 for now
+
+        test = ["50","1","99","99","99","99"]
+        interpretData(test)
+        
 
 if __name__ == '__main__':
     main()

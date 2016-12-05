@@ -18,10 +18,10 @@ def main():
         #xbee.send('tx', dest_addr_long=DEST_ADDR_LONG, dest_addr=DEST_ADDR, data='16,1') # get valve reading for zone 1
         #xbee.send('tx', dest_addr_long=DEST_ADDR_LONG, dest_addr=DEST_ADDR, data='17,1') # open valve for zone 1
         #xbee.send('tx', dest_addr_long=DEST_ADDR_LONG, dest_addr=DEST_ADDR, data='18,1') # close valve for zone 1
-        #xbee.send('tx', dest_addr_long=DEST_ADDR_LONG, dest_addr=DEST_ADDR, data='19,1') # toggle valve for zone 1
+        xbee.send('tx', dest_addr_long=DEST_ADDR_LONG, dest_addr=DEST_ADDR, data='19,1') # toggle valve for zone 1
         #xbee.send('tx', dest_addr_long=DEST_ADDR_LONG, dest_addr=DEST_ADDR, data='22,1') # get sensor readings for zone 1
         #xbee.send('tx', dest_addr_long=DEST_ADDR_LONG, dest_addr=DEST_ADDR, data='23,1') # get sensor readings for all zones
-        xbee.send('tx', dest_addr_long=DEST_ADDR_LONG, dest_addr=DEST_ADDR, data='25,1,23,13,1') # set schedule for zone 1
+        #xbee.send('tx', dest_addr_long=DEST_ADDR_LONG, dest_addr=DEST_ADDR, data='25,1,23,13,1') # set schedule for zone 1
         
         # Wait for response
         response = xbee.wait_read_frame()

@@ -1,18 +1,18 @@
 (dp0
 S'Brightness'
 p1
-S'99L'
+S'99 Lux'
 p2
 sS'Temperature'
 p3
-S'0C'
+S'99 C'
 p4
 sS'Moisture'
 p5
-S'0%'
+S'99 Ohms'
 p6
 sS'Humidity'
 p7
-S'99%'
+S'99 %'
 p8
 s.

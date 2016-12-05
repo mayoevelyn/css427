@@ -6,35 +6,108 @@ dict
 p1
 tp2
 Rp3
-S'11/01/2016 PM'
+S'2016-12-04 18:03'
 p4
 (dp5
 S'Date'
 p6
-g4
-sS'Reasons'
+S'2016-12-04 18:03'
 p7
-S'reason4, reason5, reason6'
+sS'Irrigation'
 p8
-sS'DailyAverages'
+S'SCHEDULED'
 p9
-S'xC, x%, xL, x%'
+ssS'2016-12-04 17:43'
 p10
-sS'Irrigated'
-p11
-S'SKIPPED'
+(dp11
+S'Date'
 p12
-ssS'11/01/2016 AM'
+S'2016-12-04 17:43'
 p13
-(dp14
-g6
-g13
-sg7
-S'reason1, reason2, reason3'
+sS'Irrigation'
+p14
+S'SCHEDULED'
 p15
-sg9
-g10
-sg11
-S'IRRIGATED'
+ssS'2016-12-04 18:05'
 p16
+(dp17
+S'Date'
+p18
+S'2016-12-04 18:05'
+p19
+sS'Irrigation'
+p20
+S'SCHEDULED'
+p21
+ssS'2016-12-04 18:04'
+p22
+(dp23
+S'Date'
+p24
+g22
+sS'Irrigation'
+p25
+S'SCHEDULED'
+p26
+ssS'2016-12-04 18:06'
+p27
+(dp28
+S'Date'
+p29
+g27
+sS'Irrigation'
+p30
+S'SCHEDULED'
+p31
+ssS'2016-12-04 17:45'
+p32
+(dp33
+S'Date'
+p34
+S'2016-12-04 17:45'
+p35
+sS'Irrigation'
+p36
+S'SCHEDULED'
+p37
+ssS'2016-12-04 17:46'
+p38
+(dp39
+S'Date'
+p40
+g38
+sS'Irrigation'
+p41
+S'SCHEDULED'
+p42
+ssS'2016-12-04 17:54'
+p43
+(dp44
+S'Date'
+p45
+g43
+sS'Irrigation'
+p46
+S'SCHEDULED'
+p47
+ssS'2016-12-04 17:53'
+p48
+(dp49
+S'Date'
+p50
+g48
+sS'Irrigation'
+p51
+S'SCHEDULED'
+p52
+ssS'2016-12-03 18:52'
+p53
+(dp54
+S'Date'
+p55
+g53
+sS'Irrigation'
+p56
+S'SCHEDULED'
+p57
 ss.

@@ -8,16 +8,18 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 app.secret_key = 'A0A0818157573939'
 
+
+
 # Form controls
 
 class ToggleForm(Form):
-    toggle = RadioField('Toggle Valve', choices=[(1, 'Open'), (0, 'Closed')], default=0)
+    toggle = RadioField('Valve Control', choices=[(1, 'Open'), (0, 'Closed'), (2, 'Toggle')], default=0)
 
 class SensorsForm(Form):
-    temperatureThreshold = TextField('Threshold:')
-    humidityThreshold = TextField('Threshold:')
-    brightnessThreshold = TextField('Threshold:')
-    moistureThreshold = TextField('Threshold:')
+    temperatureThreshold = TextField('New Threshold:')
+    humidityThreshold = TextField('New Threshold:')
+    brightnessThreshold = TextField('New Threshold:')
+    moistureThreshold = TextField('New Threshold:')
 
 class PreferencesForm(Form):
     sensorStartTime = SelectField('Start', choices=[(1, '1:00'), (2, '2:00'), (3, '3:00'), (4, '4:00'), (5, '5:00'), (6, '6:00'), (7, '7:00'), (8, '8:00'), (9, '9:00'), (10, '10:00'), (11, '11:00'), (12, '12:00')])
@@ -27,22 +29,9 @@ class PreferencesForm(Form):
     irrigationStartTime = SelectField('Schedule for', choices=[(1, '1:00'), (2, '2:00'), (3, '3:00'), (4, '4:00'), (5, '5:00'), (6, '6:00'), (7, '7:00'), (8, '8:00'), (9, '9:00'), (10, '10:00'), (11, '11:00'), (12, '12:00')])
     irrigationStartAMPM = SelectField('AM/PM', choices=[(0, 'AM'), (1, 'PM')])
     irrigationDuration = SelectField('Keep valve open for', choices=[(0.5, '30 minutes'), (1, '1 hour'), (1.5, '1.5 hours'), (2, '2 hours'), (2.5, '2.5 hours'), (3, '3 hours'), (3.5, '3.5 hours'), (4, '4 hours')])
-    
-# External file loads
-fp = open ("cmdStationData/averages.pkl")
-currentAverages = pickle.load(fp)
 
-fp = open("cmdStationData/valveState.pkl")
-valveState = pickle.load(fp)
-
-fp = open("cmdStationData/nextScheduled.pkl")
-nextScheduled = pickle.load(fp)
-
-fp = open("cmdStationData/history.pkl")
-history = pickle.load(fp)
-
-fp = open("cmdStationData/sensorData.pkl")
-sensorData = pickle.load(fp)
+class ForceSensorUpdatesForm(Form):
+    hiddenField = ""
 
 @app.route("/toggleValve", methods=['GET', 'POST'])
 def toggleValve():
@@ -71,6 +60,9 @@ def toggleValve():
         if toggleChoice == '1':
             formValveState["ValveState"] = "Open"
 
+        if toggleChoice == '2':
+            formValveState["ValveState"] = "Toggle"
+
         # Increment the sequence number
         valveSeqNum = formValveSeqNum["SeqNum"]
         valveSeqNum = valveSeqNum + 1
@@ -88,11 +80,24 @@ def toggleValve():
         fp = open("formData/formValveState.pkl", "w")
         pickle.dump(formValveState, fp)
 
+    # External file reloads
+    fp = open ("cmdStationData/averages.pkl")
+    currentAverages = pickle.load(fp)
+    fp = open("cmdStationData/valveState.pkl")
+    valveState = pickle.load(fp)
+    fp = open("cmdStationData/nextScheduled.pkl")
+    nextScheduled = pickle.load(fp)
+    fp = open("cmdStationData/history.pkl")
+    history = pickle.load(fp)
+    fp = open("cmdStationData/sensorData.pkl")
+    sensorData = pickle.load(fp)
+
     return render_template(
         'index.html',
         toggleForm=toggle_form,
         sensorsForm=SensorsForm(),
         preferencesForm=PreferencesForm(),
+        forceSensorUpdatesForm=ForceSensorUpdatesForm(),
         currentAverages=currentAverages,
         valveState=valveState,
         nextScheduled=nextScheduled,
@@ -142,11 +147,24 @@ def sensors():
         fp = open("formData/formSensors.pkl", "w")
         pickle.dump(formSensors, fp)
 
+    # External file reloads
+    fp = open ("cmdStationData/averages.pkl")
+    currentAverages = pickle.load(fp)
+    fp = open("cmdStationData/valveState.pkl")
+    valveState = pickle.load(fp)
+    fp = open("cmdStationData/nextScheduled.pkl")
+    nextScheduled = pickle.load(fp)
+    fp = open("cmdStationData/history.pkl")
+    history = pickle.load(fp)
+    fp = open("cmdStationData/sensorData.pkl")
+    sensorData = pickle.load(fp)
+
     return render_template(
         'index.html',
         toggleForm=ToggleForm(),
         sensorsForm=sensors_form,
         preferencesForm=PreferencesForm(),
+        forceSensorUpdatesForm=ForceSensorUpdatesForm(),
         currentAverages=currentAverages,
         valveState=valveState,
         nextScheduled=nextScheduled,
@@ -201,11 +219,73 @@ def preferences():
         fp = open("formData/formPreferences.pkl", "w")
         pickle.dump(formPreferences, fp)        
 
+    # External file reloads
+    fp = open ("cmdStationData/averages.pkl")
+    currentAverages = pickle.load(fp)
+    fp = open("cmdStationData/valveState.pkl")
+    valveState = pickle.load(fp)
+    fp = open("cmdStationData/nextScheduled.pkl")
+    nextScheduled = pickle.load(fp)
+    fp = open("cmdStationData/history.pkl")
+    history = pickle.load(fp)
+    fp = open("cmdStationData/sensorData.pkl")
+    sensorData = pickle.load(fp)
+
     return render_template(
         'index.html',
         toggleForm=ToggleForm(),
         sensorsForm=SensorsForm(),
         preferencesForm=preferences_form,
+        forceSensorUpdatesForm=ForceSensorUpdatesForm(),
+        currentAverages=currentAverages,
+        valveState=valveState,
+        nextScheduled=nextScheduled,
+        history=history,
+        sensorData=sensorData
+        )
+
+@app.route("/forceSensorUpdates", methods=['GET', 'POST'])
+def forceSensorUpdates():
+    forceSensorUpdates_form = ForceSensorUpdatesForm(request.form)
+
+    # Load the previous sequence number
+    fp = open("sequenceNumbers/formForceSensorUpdatesSeqNum.pkl")
+    formForceSensorUpdatesSeqNum = pickle.load(fp)
+        
+    if request.method == 'POST':        
+        print "force sensor updates function"
+
+        # Increment the sequence number
+        forceSensorUpdatesSeqNum = formForceSensorUpdatesSeqNum["SeqNum"]
+        forceSensorUpdatesSeqNum = forceSensorUpdatesSeqNum + 1
+        
+        if forceSensorUpdatesSeqNum == 10:
+            forceSensorUpdatesSeqNum = 0
+        
+        formForceSensorUpdatesSeqNum["SeqNum"] = forceSensorUpdatesSeqNum        
+
+        # Save sequence number to file
+        fp = open("sequenceNumbers/formForceSensorUpdatesSeqNum.pkl", "w")
+        pickle.dump(formForceSensorUpdatesSeqNum, fp)
+    
+    # External file reloads
+    fp = open ("cmdStationData/averages.pkl")
+    currentAverages = pickle.load(fp)
+    fp = open("cmdStationData/valveState.pkl")
+    valveState = pickle.load(fp)
+    fp = open("cmdStationData/nextScheduled.pkl")
+    nextScheduled = pickle.load(fp)
+    fp = open("cmdStationData/history.pkl")
+    history = pickle.load(fp)
+    fp = open("cmdStationData/sensorData.pkl")
+    sensorData = pickle.load(fp)
+
+    return render_template(
+        'index.html',
+        toggleForm=ToggleForm(),
+        sensorsForm=SensorsForm(),
+        preferencesForm=PreferencesForm(),
+        forceSensorUpdatesForm=forceSensorUpdates_form,
         currentAverages=currentAverages,
         valveState=valveState,
         nextScheduled=nextScheduled,
@@ -215,11 +295,24 @@ def preferences():
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
+    # External file reloads
+    fp = open ("cmdStationData/averages.pkl")
+    currentAverages = pickle.load(fp)
+    fp = open("cmdStationData/valveState.pkl")
+    valveState = pickle.load(fp)
+    fp = open("cmdStationData/nextScheduled.pkl")
+    nextScheduled = pickle.load(fp)
+    fp = open("cmdStationData/history.pkl")
+    history = pickle.load(fp)
+    fp = open("cmdStationData/sensorData.pkl")
+    sensorData = pickle.load(fp)
+
     return render_template(
         'index.html',
         sensorsForm=SensorsForm(),
         toggleForm=ToggleForm(),
         preferencesForm=PreferencesForm(),
+        forceSensorUpdatesForm=ForceSensorUpdatesForm(),
         currentAverages=currentAverages,
         valveState=valveState,
         nextScheduled=nextScheduled,
@@ -229,4 +322,62 @@ def index():
     
 
 if __name__ == "__main__":
+    # Init sequence numbers
+
+    # Valve
+    formValveSeqNum = {}
+    formValveSeqNum["SeqNum"] = 0
+    fp = open("sequenceNumbers/formValveSeqNum.pkl", "w")
+    pickle.dump(formValveSeqNum, fp)
+    fp.close()
+
+    fp = open("formData/formValveState.pkl")
+    formValveState = pickle.load(fp)
+    fp.close()
+
+    formValveState["SeqNum"] = 0
+    fp = open("formData/formValveState.pkl", "w")
+    pickle.dump(formValveState, fp)
+    fp.close()
+
+    # Sensors
+    formSensorsSeqNum = {}
+    formSensorsSeqNum["SeqNum"] = 0
+    fp = open("sequenceNumbers/formSensorsSeqNum.pkl", "w")
+    pickle.dump(formSensorsSeqNum, fp)
+    fp.close()
+
+    fp = open("formData/formValveState.pkl")
+    formSensors = pickle.load(fp)
+    fp.close()
+
+    formSensors["SeqNum"] = 0
+    fp = open("formData/formSensors.pkl", "w")
+    pickle.dump(formSensors, fp)
+    fp.close()
+
+    # Preferences
+    formPreferencesSeqNum = {}
+    formPreferencesSeqNum["SeqNum"] = 0
+    fp = open("sequenceNumbers/formPreferencesSeqNum.pkl", "w")
+    pickle.dump(formPreferencesSeqNum, fp)
+    fp.close()
+
+    fp = open("formData/formPreferences.pkl")
+    formPreferences = pickle.load(fp)
+    fp.close()
+
+    formPreferences["SeqNum"] = 0
+    fp = open("formData/formPreferences.pkl", "w")
+    pickle.dump(formPreferences, fp)
+    fp.close()
+
+    # Force Sensor Updates
+    formForceSensorUpdatesSeqNum = {}
+    formForceSensorUpdatesSeqNum["SeqNum"] = 0
+    fp = open("sequenceNumbers/formForceSensorUpdatesSeqNum.pkl", "w")
+    pickle.dump(formForceSensorUpdatesSeqNum, fp)
+    fp.close()
+
+    # Start the server
     app.run('0.0.0.0')

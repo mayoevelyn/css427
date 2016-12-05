@@ -1,10 +1,11 @@
-destlong = "global string"
-
 
 
 def main():       
     
-    print destlong
+    i = 0
+    while i < 10:
+        i += 1
+        print i
     
         
     

@@ -20,11 +20,11 @@ V1
 p9
 sS'SensorStartTime'
 p10
-V11
+V1
 p11
 sS'IrrigationDuration'
 p12
-V3.5
+V0.5
 p13
 sS'IrrigationStartAMPM'
 p14

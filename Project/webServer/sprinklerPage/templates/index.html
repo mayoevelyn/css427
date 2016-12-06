@@ -14,31 +14,38 @@
   </head>
   <body>
     <div style="margin: 40px 0px 40px 40px">
-    <h2>Zone 1</h2>
-
-    <h3>Valve is: {{valveState["ValveState"]}}</h3>
-
-    <form name="toggleForm" action="{{ url_for('toggleValve') }}" method="post">          
-      {{ toggleForm.toggle.label }} {{ toggleForm.toggle }}
-      <button name="action" class="btn btn-primary" type="submit" value="Submit">Update Valve</button>
-    </form>   
-
-    <h3>Next Scheduled</h3>
-    <p>Time: {{nextScheduled["Time"]}}
     
-    <h3>Current Averages</h3>
-    <table class="table">
-        <tr>
-	  {% for key, value in currentAverages.items() %}
-            <th class="col-md-2">{{key}}</th>
-          {% endfor %}
-	</tr>
-	<tr>
-	  {% for key, value in currentAverages.items() %}
-            <td>{{value}}</td>
-          {% endfor %}
-	</tr> 
-    </table> 
+    <h2>Zone 1</h2>
+	
+    <div>
+    	<h3>Valve is: {{valveState["ValveState"]}}</h3>
+
+    	<form name="toggleForm" action="{{ url_for('toggleValve') }}" method="post">          
+      	{{ toggleForm.toggle.label }} {{ toggleForm.toggle }}
+      	<button name="action" class="btn btn-primary" type="submit" value="Submit">Update Valve</button>
+    	</form>  
+    </div>
+
+    <div>
+      <h3>Next Scheduled</h3>
+      <p>Time: {{nextScheduled["Time"]}}
+    </div>
+    
+    <div style="clear: both">
+      <h3>Current Averages</h3>
+      <table class="table">
+          <tr>
+	    {% for key, value in currentAverages.items() %}
+              <th class="col-md-2">{{key}}</th>
+            {% endfor %}
+	  </tr>
+	  <tr>
+	    {% for key, value in currentAverages.items() %}
+              <td>{{value}}</td>
+            {% endfor %}
+	  </tr> 
+      </table> 
+    </div>
 
     <h3>Sensors</h3>
 
@@ -79,12 +86,12 @@
 	</tr> 
     </table>
       
-    <button name="action" class="btn btn-primary" type="submit" value="Submit">Update Thresholds</button>
+    <button name="action" style="float: left" class="btn btn-primary" type="submit" value="Submit">Update Thresholds</button>
     </form>
     
-    <h3>Force Sensor Updates</h3>
+    
     <form name="forceSensorUpdatessForm" action="{{ url_for('forceSensorUpdates') }}" method="post">
-      <button name="action" class="btn btn-primary" type="submit" value="Submit">Force Sensor Updates</button>
+      &nbsp;&nbsp;<button name="action" class="btn btn-primary" type="submit" value="Submit">Force Sensor Updates</button>
     </form>
 
     <h3>History</h3>

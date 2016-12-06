@@ -1,11 +1,11 @@
 (dp0
 S'Brightness'
 p1
-S'60 Lux'
+S'37 Lux'
 p2
 sS'Temperature'
 p3
-S'24 C'
+S'25 C'
 p4
 sS'Moisture'
 p5

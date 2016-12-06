@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, request, send_from_directory
+from flask import Flask, render_template, flash, request, send_from_directory, redirect, url_for
 from wtforms import Form, TextField, validators, SelectField, RadioField
 import pickle
 
@@ -80,6 +80,8 @@ def toggleValve():
         fp = open("formData/formValveState.pkl", "w")
         pickle.dump(formValveState, fp)
 
+    return redirect(url_for('index'))
+"""
     # External file reloads
     fp = open ("cmdStationData/averages.pkl")
     currentAverages = pickle.load(fp)
@@ -104,7 +106,7 @@ def toggleValve():
         history=history,
         sensorData=sensorData
         )
-        
+        """
 
 @app.route("/sensors", methods=['GET', 'POST'])
 def sensors():    
@@ -147,7 +149,9 @@ def sensors():
         fp = open("formData/formSensors.pkl", "w")
         pickle.dump(formSensors, fp)
 
-    # External file reloads
+    return redirect(url_for('index'))
+
+    """# External file reloads
     fp = open ("cmdStationData/averages.pkl")
     currentAverages = pickle.load(fp)
     fp = open("cmdStationData/valveState.pkl")
@@ -157,7 +161,7 @@ def sensors():
     fp = open("cmdStationData/history.pkl")
     history = pickle.load(fp)
     fp = open("cmdStationData/sensorData.pkl")
-    sensorData = pickle.load(fp)
+    sensorData = pickle.load(fp)    
 
     return render_template(
         'index.html',
@@ -171,6 +175,7 @@ def sensors():
         history=history,
         sensorData=sensorData
         )
+        """
 
 @app.route("/preferences", methods=['GET', 'POST'])
 def preferences():
@@ -219,7 +224,9 @@ def preferences():
         fp = open("formData/formPreferences.pkl", "w")
         pickle.dump(formPreferences, fp)        
 
-    # External file reloads
+    return redirect(url_for('index'))
+
+    """# External file reloads
     fp = open ("cmdStationData/averages.pkl")
     currentAverages = pickle.load(fp)
     fp = open("cmdStationData/valveState.pkl")
@@ -243,6 +250,7 @@ def preferences():
         history=history,
         sensorData=sensorData
         )
+        """
 
 @app.route("/forceSensorUpdates", methods=['GET', 'POST'])
 def forceSensorUpdates():
@@ -267,8 +275,10 @@ def forceSensorUpdates():
         # Save sequence number to file
         fp = open("sequenceNumbers/formForceSensorUpdatesSeqNum.pkl", "w")
         pickle.dump(formForceSensorUpdatesSeqNum, fp)
+
+    return redirect(url_for('index'))
     
-    # External file reloads
+    """# External file reloads
     fp = open ("cmdStationData/averages.pkl")
     currentAverages = pickle.load(fp)
     fp = open("cmdStationData/valveState.pkl")
@@ -292,6 +302,7 @@ def forceSensorUpdates():
         history=history,
         sensorData=sensorData
         )
+        """
 
 @app.route("/", methods=['GET', 'POST'])
 def index():

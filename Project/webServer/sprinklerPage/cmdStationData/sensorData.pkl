@@ -14,14 +14,14 @@ p6
 I1000
 sS'Reading'
 p7
-I60
+I37
 ssS'Temperature'
 p8
 (dp9
 g6
-I30
+I31
 sg7
-I24
+I25
 ssS'Moisture'
 p10
 (dp11
@@ -35,5 +35,5 @@ p12
 g6
 I20
 sg7
-I37
+I36
 ss.

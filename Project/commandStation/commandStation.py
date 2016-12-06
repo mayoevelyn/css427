@@ -21,12 +21,12 @@ forceSensorUpdatesSeqNum = 1
 def forwardCallback(indata):    
     onDataReceived(indata)    
 
-"""serial_port = serial.Serial('/dev/ttyUSB0', 9600)
+serial_port = serial.Serial('/dev/ttyUSB0', 9600)
 xbee = ZigBee(serial_port, callback=forwardCallback)
-"""
+
 
 def sendToController(outdata):
-    """global xbee
+    global xbee
     DEST_ADDR_LONG = "\x00\x13\xA2\x00\x40\xE3\xCD\x1E"
     DEST_ADDR = "\xFF\xFE"
 
@@ -36,8 +36,8 @@ def sendToController(outdata):
     xbee.send('tx', dest_addr_long=DEST_ADDR_LONG, dest_addr=DEST_ADDR, data=outdata)            
         
     # Wait for ack
-    ack = xbee.wait_read_frame()
-    """
+    #ack = xbee.wait_read_frame()
+    
     print "send " + outdata + " to controller"
     
 
@@ -447,9 +447,9 @@ def main():
         # Request valve state from controller
         sendToController("16,1") # hard coding zone 1 for now
 
-        test = ["50","1","99","99","99","99"]
+        """test = ["50","1","99","99","99","99"]
         interpretData(test)
-        
+        """
 
 if __name__ == '__main__':
     main()

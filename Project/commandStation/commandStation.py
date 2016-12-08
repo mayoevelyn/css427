@@ -100,7 +100,7 @@ def recordHistory(wasIrrigated, scheduleHour, scheduleMinute):
         return
 
     nextScheduled = {}
-    nextScheduled["Time"] = str(scheduleHour) + ":" + str(scheduleMinute)
+    nextScheduled["Time"] = str(dateAndTime)
     
     fp = open("../webServer/sprinklerPage/cmdStationData/nextScheduled.pkl", "w")
     pickle.dump(nextScheduled, fp)
@@ -294,7 +294,7 @@ def checkWebServer():
                 sendToController("19,1") # hard code zone 1 for now
 
             #increment sequence number
-            valveSeqNum = valveSeqNum + 1
+            valveSeqNum = valveSeqNum + 1            
 
         # wrap around sequence number
         if formValveState["SeqNum"] == 0 and valveSeqNum == 10:
@@ -434,8 +434,7 @@ def onDataReceived(indata):
     
 
 def main():
-    test = ["48","1","0"]
-    interpretData(test)
+    time.sleep(15)
     while True:
 
         # Web server sleeps 250 ms each call. This loop acts as a timer.
@@ -447,9 +446,7 @@ def main():
         # Request valve state from controller
         sendToController("16,1") # hard coding zone 1 for now
 
-        """test = ["50","1","99","99","99","99"]
-        interpretData(test)
-        """
+        
 
 if __name__ == '__main__':
     main()

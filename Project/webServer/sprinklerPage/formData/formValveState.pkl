@@ -1,9 +1,9 @@
 (dp0
 S'SeqNum'
 p1
-I2
+I6
 sS'ValveState'
 p2
-S'Toggle'
+S'Closed'
 p3
 s.

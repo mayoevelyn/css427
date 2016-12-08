@@ -11,10 +11,10 @@ p4
 (dp5
 S'Threshold'
 p6
-I1000
+I102
 sS'Reading'
 p7
-I37
+I64
 ssS'Temperature'
 p8
 (dp9
@@ -35,5 +35,5 @@ p12
 g6
 I20
 sg7
-I36
+I32
 ss.

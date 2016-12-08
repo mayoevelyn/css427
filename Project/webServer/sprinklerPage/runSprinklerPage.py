@@ -1,6 +1,7 @@
 from flask import Flask, render_template, flash, request, send_from_directory, redirect, url_for
 from wtforms import Form, TextField, validators, SelectField, RadioField
 import pickle
+from collections import defaultdict
 
 #  App config
 DEBUG = True
@@ -388,6 +389,12 @@ if __name__ == "__main__":
     formForceSensorUpdatesSeqNum["SeqNum"] = 0
     fp = open("sequenceNumbers/formForceSensorUpdatesSeqNum.pkl", "w")
     pickle.dump(formForceSensorUpdatesSeqNum, fp)
+    fp.close()
+
+    # Reset History
+    history = defaultdict(dict)
+    fp = open("cmdStationData/history.pkl", "w")
+    pickle.dump(history, fp)
     fp.close()
 
     # Start the server

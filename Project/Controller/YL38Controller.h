@@ -1,3 +1,12 @@
+// ----------------------------------------------------------------------------
+// CSS 427 - Embedded Systems
+// Author:  Thomas Dye, John Walter - 12/9/2016
+// School:  University of Washington | Bothell
+// Instructor:  Dr. Peng Yang
+//
+// Controller  - Moisture Sensor Wrapper
+// ----------------------------------------------------------------------------
+
 #ifndef YL38_CONTROLLER_H
 #define YL38_CONTROLLER_H
 
